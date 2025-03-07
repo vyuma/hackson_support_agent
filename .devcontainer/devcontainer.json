@@ -1,0 +1,81 @@
+{
+    "name": "Dream Step",
+    
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": "."
+    },
+    "runArgs": [
+        "--name", "hackson_support_agent"
+    ],
+    "workspaceFolder": "/workspaces/",
+
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "mhutchie.git-graph",
+                "github.copilot",
+                "github.copilot-chat",
+                "aaron-bond.better-comments",
+                "anysphere.pyright",
+                "bradlc.vscode-tailwindcss",
+                "christian-kohler.path-intellisense",
+                "csstools.postcss",
+                "eamodio.gitlens",
+                "ecmel.vscode-html-css",
+                "esbenp.prettier-vscode",
+                "formulahendry.auto-rename-tag",
+                "formulahendry.code-runner",
+                "george-alisson.html-preview-vscode",
+                "github.github-vscode-theme",
+                "github.remotehub",
+                "github.vscode-pull-request-github",
+                "grapecity.gc-excelviewer",
+                "gruntfuggly.todo-tree",
+                "hediet.vscode-drawio",
+                "ics.japanese-proofreading",
+                "kevinrose.vsc-python-indent",
+                "kirozen.wordcounter",
+                "marp-team.marp-vscode",
+                "mechatroner.rainbow-csv",
+                "ms-azuretools.vscode-docker",
+                "ms-ceintl.vscode-language-pack-ja",
+                "ms-python.debugpy",
+                "ms-python.isort",
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-toolsai.jupyter",
+                "ms-toolsai.jupyter-keymap",
+                "ms-toolsai.jupyter-renderers",
+                "ms-toolsai.vscode-jupyter-cell-tags",
+                "ms-vscode.remote-explorer",
+                "ms-vscode.remote-repositories",
+                "ms-vsliveshare.vsliveshare",
+                "natecorkish.html-css-class-completion",
+                "nvarner.typst-lsp",
+                "oderwat.indent-rainbow",
+                "yfzhao.hscopes-booster",
+                "yoavbls.pretty-ts-errors"
+            ]
+        }
+    }
+
+
+	
+	
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "uname -a",
+
+	// Configure tool-specific properties.
+	// "customizations": {},
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+}
