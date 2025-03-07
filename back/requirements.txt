@@ -1,0 +1,12 @@
+# langserveのために必要なパッケージ
+langserve[all]
+fastapi
+uvicorn[standard]
+numpy<2
+matplotlib
+pandas
+langchain
+langchain_openai
+langchain-google-genai
+langdetect
+deepl
