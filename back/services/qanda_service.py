@@ -1,4 +1,3 @@
-# back/services/qanda_service.py
 from langchain.prompts import PromptTemplate, ChatPromptTemplate
 from langchain.output_parsers import ResponseSchema, StructuredOutputParser
 from langchain.schema.runnable import RunnableSequence
@@ -23,11 +22,12 @@ class QandaService(BaseService):
 
         prompt_template = ChatPromptTemplate.from_template(
             template="""
-            あなたは、夢を語る人に対してそれの具体化を支援するためのエージェントです。
+            あなたはプログラミング初心者のプロダクト開発を補助するハッカソン支援エージェントです。
             ...
-            質問:{yume_prompt}
+            アイデア、期間、人数:{yume_prompt}
+            これに基づいたアイデアを仕様に落とし込む上での質問をしてください。
+            アイデアが具体的であれば3から5個で、抽象的であればそれ以上生成してください。
             回答は以下のフォーマットを参照してください。
-            質問が具体的であれば3から5個で、抽象的であればそれ以上生成してください。
             {format_instructions}
             """,
             partial_variables={"format_instructions": parser.get_format_instructions()},
@@ -35,4 +35,4 @@ class QandaService(BaseService):
 
         chain = prompt_template | self.flash_llm_pro | parser
         result = chain.invoke({"yume_prompt": yume_prompt})
-        return result
+        return {"result": {"Question": result["Question"]}}
