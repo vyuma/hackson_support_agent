@@ -1,5 +1,5 @@
 {
-    "name": "Dream Step",
+    "name": "hackson_support_agent",
     
     "build": {
         "dockerfile": "Dockerfile",
