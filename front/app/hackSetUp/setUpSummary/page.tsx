@@ -81,7 +81,7 @@ export default function SetUpSummaryPage() {
 
   const handleSave = () => {
     // 編集後の仕様書を sessionStorage に保存
-    sessionStorage.setItem("summary", summary);
+    sessionStorage.setItem("specification", summary);
     alert("仕様書が保存されました");
     router.push("/hackSetUp/selectFramework");
   };
