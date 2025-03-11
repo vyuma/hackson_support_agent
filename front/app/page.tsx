@@ -34,9 +34,15 @@ export default function HomePage() {
       console.log("API response:", response);
       const data = await response.json();
 
+      const formattedData = {
+        yume_answer: {
+          Answer: data.result.Question,
+        },
+      }
+
       // sessionStorage にアイデアと質問データを保存
       sessionStorage.setItem("dream", idea);
-      sessionStorage.setItem("questionData", JSON.stringify(data));
+      sessionStorage.setItem("questionData", JSON.stringify(formattedData));
       
       // 質問＆回答入力ページへ遷移
       router.push("/hackSetUp/hackQA");

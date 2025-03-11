@@ -18,8 +18,8 @@ export default function HackQA() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedDream = sessionStorage.getItem("dream");
-      // キーを "answers" で読み込むように修正
-      const storedQA = sessionStorage.getItem("answers");
+      // キーを "questionData" で読み込むように修正
+      const storedQA = sessionStorage.getItem("questionData");
       if (storedDream) {
         setDream(storedDream);
         if (storedQA) {
