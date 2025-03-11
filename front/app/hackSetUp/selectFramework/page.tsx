@@ -1,4 +1,3 @@
-// front/app/hackSetUp/selectFramework/page.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -72,8 +71,7 @@ export default function SelectFrameworkPage() {
                             フロントエンド: ${selectedFrontend.name}（優先順位: ${selectedFrontend.priority}、理由: ${selectedFrontend.reason}）
                             バックエンド: ${selectedBackend.name}（優先順位: ${selectedBackend.priority}、理由: ${selectedBackend.reason}）
                             `;
-      const updatedSpec = specification + "\n" + frameworkInfo;
-      sessionStorage.setItem("specification", updatedSpec);
+      sessionStorage.setItem("framework",frameworkInfo);
     } else {
       // Android / iOS の場合は簡単な説明を追記
       const nativeInfo =
@@ -83,7 +81,7 @@ export default function SelectFrameworkPage() {
       const updatedSpec = specification + "\n" + nativeInfo;
       sessionStorage.setItem("specification", updatedSpec);
     }
-    router.push("/app/hackSetUp/taskDivision");
+    router.push("/hackSetUp/taskDivision");
   };
 
   return (
