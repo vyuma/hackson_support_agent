@@ -84,6 +84,40 @@ export default function TaskDivisionPage() {
     fetchDirectoryAndTasks();
   }, []);
 
+  // 環境構築ハンズオンAPI呼び出し＆遷移処理
+  const handleProceedToEnv = async () => {
+    // タスク内容をセッションストレージに保存
+    sessionStorage.setItem("tasks", JSON.stringify(tasks));
+
+    // 仕様書、フレームワーク、ディレクトリ情報を取得
+    const specification = sessionStorage.getItem("specification");
+    const framework = sessionStorage.getItem("framework");
+    const directory = sessionStorage.getItem("directory");
+
+    if (!specification || !framework || !directory) {
+      alert("必要なデータが不足しています。");
+      return;
+    }
+
+    try {
+      const res = await fetch(process.env.NEXT_PUBLIC_API_URL + "/api/environment/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ specification, directory, framework }),
+      });
+      if (!res.ok) {
+        throw new Error("環境構築APIエラー: " + res.statusText);
+      }
+      const envData = await res.json();
+      // envDataは { overall: string, devcontainer: string, frontend: string, backend: string } を想定
+      sessionStorage.setItem("envHanson", JSON.stringify(envData));
+      router.push("/hackSetUp/envHanson");
+    } catch (err: any) {
+      console.error(err);
+      alert("環境構築APIの呼び出しに失敗しました");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-4xl mx-auto bg-white p-8 rounded shadow">
@@ -99,6 +133,14 @@ export default function TaskDivisionPage() {
             ))}
           </div>
         )}
+        <div className="mt-8">
+          <button
+            onClick={handleProceedToEnv}
+            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+          >
+            確認 環境構築ハンズオンに進む
+          </button>
+        </div>
       </div>
     </div>
   );
