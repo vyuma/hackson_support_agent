@@ -26,6 +26,7 @@ class TasksService(BaseService):
         prompt_template = ChatPromptTemplate.from_template(
             template="""
                         あなたはアプリ制作のプロフェッショナルです。以下の情報に基づいて、アプリ制作に必要な全タスクを具体的にリストアップしてください。
+                        ただし、環境構築に関するタスクは含めないでください。
                         仕様書:
                         {specification}
                         ディレクトリ構成:
