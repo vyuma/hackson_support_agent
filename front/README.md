@@ -36,3 +36,8 @@ localhost:3000でアプリケーションを起動
 npm run dev 
 ```
 
+## ブランチ周りの規則
+main: 本番環境、完成品しか載せない
+develop: 開発環境、プルリク送る先はこっち
+dev/(名前): 作業ブランチ　backendとfrontendのどちらにも機能を作る場合
+feature/(名前) back branchとfrontエンド branchのどちらかに機能を作る場合
