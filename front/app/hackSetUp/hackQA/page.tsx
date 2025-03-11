@@ -18,19 +18,20 @@ export default function HackQA() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedDream = sessionStorage.getItem("dream");
-      const storedQuestionData = sessionStorage.getItem("questionData");
+      // キーを "answers" で読み込むように修正
+      const storedQA = sessionStorage.getItem("answers");
       if (storedDream) {
         setDream(storedDream);
-        if (storedQuestionData) {
+        if (storedQA) {
           try {
-            const data = JSON.parse(storedQuestionData);
-            console.log("セッションストレージから読み込んだデータ:", data);
-            // APIから返されたオブジェクト形式に合わせて、質問リストをセット
-            if (data && data.result && Array.isArray(data.result.Question)) {
-              setQuestions(data.result.Question);
-              // 初期回答（空文字またはAPIからの初期回答）をセット
+            const data = JSON.parse(storedQA);
+            console.log("セッションストレージから読み込んだQ&Aデータ:", data);
+            // 期待する形式は { yume_answer: { Answer: [...] } } となる
+            if (data && data.yume_answer && Array.isArray(data.yume_answer.Answer)) {
+              setQuestions(data.yume_answer.Answer);
+              // 初期回答をセット（各オブジェクトの Answer 値を利用）
               const initialAnswers: { [key: number]: string } = {};
-              data.result.Question.forEach((q: Question, index: number) => {
+              data.yume_answer.Answer.forEach((q: { Question: string; Answer: string }, index: number) => {
                 initialAnswers[index] = q.Answer || "";
               });
               setAnswers(initialAnswers);
@@ -41,7 +42,7 @@ export default function HackQA() {
             console.error("JSONパースエラー:", e);
           }
         } else {
-          console.error("質問データがセッションストレージにありません");
+          console.error("Q&Aデータがセッションストレージにありません");
         }
         setLoading(false);
       } else {
@@ -50,23 +51,24 @@ export default function HackQA() {
       }
     }
   }, [router]);
-
+  
   const handleAnswerChange = (id: number, value: string) => {
     setAnswers((prev) => ({ ...prev, [id]: value }));
   };
 
   const handleSave = () => {
-    // 回答を {Question: 質問, Answer: 回答} の形式に変換
     const formattedQA = {
-        yume_answer:{
-            Answer: questions.map((q, index) => ({
-                Question: q.Question,
-                Answer: answers[index],
-            })),
-    },
+        yume_answer: {
+          Answer: questions.map((q, index) => ({
+            Question: q.Question,
+            Answer: answers[index],
+          })),
+        },
     };
-
     sessionStorage.setItem("answers", JSON.stringify(formattedQA));
+      
+    console.log("formattedQA:", formattedQA);
+    // 画面遷移
     router.push("/hackSetUp/setUpSummary");
   };
 

@@ -12,13 +12,16 @@ class SummaryService(BaseService):
         """
         # list[dict] => "Q: 〇〇\nA: 〇〇" のテキストに変換
         yume_answer_str = "\n".join(
-            [f"Q: {item['Question']}\nA: {item['Answer']}" for item in yume_answer]
+            [f"Q: {item.dict()['Question']}\nA: {item.dict()['Answer']}" for item in yume_answer]
         )
+
+
         yume_summary_system_prompt = ChatPromptTemplate.from_template(
             template="""
             あなたはプログラミング初心者のプロダクト開発を補助するハッカソン支援エージェントです。
             あなたは、プロダクト制作のための具体的な必要になる仕様の質問をして次のような回答をユーザーから得ることが出来ました。
             この時に、ユーザーから得た回答をもとに、プロダクト開発のための完全な仕様書を作成してください。
+            仕様書はマークダウン形式で記述して構いません。
             {yume_answer}
             """
         )

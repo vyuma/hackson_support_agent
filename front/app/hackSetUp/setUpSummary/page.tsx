@@ -3,16 +3,22 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import SummaryEditor from "../../components/SummaryEditor";
+import { GSP_NO_RETURNED_VALUE } from "next/dist/lib/constants";
 
 interface QAItem {
   Question: string;
   Answer: string;
 }
 
+interface YumeAnswerRequest {
+    yume_answer: {
+      Answer: QAItem[];
+    };
+  }  
+
 export default function SetUpSummaryPage() {
   const router = useRouter();
-//   qDataは{"Answer": [{"Question": "string","Answer": "string"} ]} の形式
-  const [qaData, setQaData] = useState<{ yume_answer: { Answer: QAItem[] } } | null>(null);
+  const [qaData, setQaData] = useState<YumeAnswerRequest | null>(null);
   const [summary, setSummary] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
@@ -22,7 +28,8 @@ export default function SetUpSummaryPage() {
       const storedQA = sessionStorage.getItem("answers");
       if (storedQA) {
         try {
-          const parsedQA = JSON.parse(storedQA);
+          const parsedQA: YumeAnswerRequest = JSON.parse(storedQA);
+          console.log("セッションストレージから読み込んだQ&Aデータ:", parsedQA);
           setQaData(parsedQA);
         } catch (error) {
           console.error("Q&Aデータのパースエラー:", error);
@@ -36,19 +43,24 @@ export default function SetUpSummaryPage() {
 
   // Q&Aデータが取得できたら summary API を呼び出す
     useEffect(() => {
-    if (qaData && qaData.yume_answer && qaData.yume_answer.Answer && qaData.yume_answer.Answer.length > 0) {
+
+    if (qaData == null) return;
+    if (qaData.yume_answer &&
+        Array.isArray(qaData.yume_answer.Answer) &&
+        qaData.yume_answer.Answer.length > 0
+        ) {
         const fetchSummary = async () => {
         setLoading(true);
         try {
             // hackQAで整形したデータをそのままAPIに送る
-            const requestBody = qaData;
-            const res = await fetch(process.env.NEXT_PUBLIC_API_URL + "/api/yume_summary", {
+            const requestBody = qaData.yume_answer;
+            const res = await fetch(process.env.NEXT_PUBLIC_API_URL + "/api/yume_summary/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(requestBody),
             });
             const summaryText = await res.json();
-            setSummary(summaryText);
+            setSummary(summaryText.summary);
         } catch (error) {
             console.error("summary API 呼び出しエラー:", error);
         } finally {
@@ -56,12 +68,15 @@ export default function SetUpSummaryPage() {
         }
         };
         fetchSummary();
-    }
+        }else{
+            console.error("Q&Aデータが不正です");
+        }
     }, [qaData]);
 
 
   const handleSummaryChange = (newSummary: string) => {
     setSummary(newSummary);
+    console.log("newSummary:", newSummary);
   };
 
   const handleSave = () => {
