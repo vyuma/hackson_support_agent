@@ -3,20 +3,18 @@ from pydantic import BaseModel
 from services.tasks_service import TasksService
 
 router = APIRouter()
-tasks_service = TasksService()
 
-class YumeSummary(BaseModel):
-    Summary: str
-
+class TasksRequest(BaseModel):
+    specification: str
+    directory: str
+    framework: str
 
 @router.post("/")
-def generate_yume_object_and_tasks(yume_summary: YumeSummary):
+def generate_tasks(request: TasksRequest):
     """
-    旧: /api/get_object_and_tasks
-    yume_summary.Summary を受け取り、オブジェクト＆タスク一覧を生成。
+    仕様書、ディレクトリ構成、フレームワーク情報（全てstring）を受け取り、
+    アプリ制作に必要な全タスクを、タスク名、優先度（Must, Should, Could）、
+    具体的な内容を含むリストとして返すAPI。
     """
-    object_and_tasks = tasks_service.generate_yume_object_and_task(
-        yume_summary.Summary
-    )
-    # JSON形式
-    return responses.JSONResponse(content=object_and_tasks, media_type="application/json")
+    tasks = TasksService().generate_tasks(request.specification, request.directory, request.framework)
+    return responses.JSONResponse(content={"tasks": tasks}, media_type="application/json")
