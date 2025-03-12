@@ -18,7 +18,7 @@ export default function EnvHandsOnPage() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const storedEnv = sessionStorage.getItem("envHandsOn");
+      const storedEnv = sessionStorage.getItem("envHanson");
       if (storedEnv) {
         try {
           const parsedEnv: EnvHandsOn = JSON.parse(storedEnv);
