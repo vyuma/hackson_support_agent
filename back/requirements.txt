@@ -10,3 +10,6 @@ langchain_openai
 langchain-google-genai
 langdetect
 deepl
+sqlalchemy
+psycopg2-binary
+pydantic

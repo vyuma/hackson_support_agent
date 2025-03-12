@@ -17,7 +17,6 @@ export default function HomePage() {
     // 入力内容をひとつのテキストにまとめる
     const promptText = `アイデア: ${idea} 期間: ${duration} 人数: ${numPeople}`;
 
-    sessionStorage.setItem("idea", idea);
     sessionStorage.setItem("duration", duration);
     sessionStorage.setItem("numPeople", numPeople);
     
