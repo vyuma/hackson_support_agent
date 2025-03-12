@@ -32,7 +32,7 @@ export default function EnvHandsOnPage() {
   }, []);
 
   const handleBack = () => {
-    router.push("/app/hackSetUp/taskDivision");
+    router.push("/hackson/hackTask");
   };
 
   return (
@@ -64,6 +64,14 @@ export default function EnvHandsOnPage() {
           <p>環境構築情報が見つかりません。</p>
         )}
       </div>
+      <div className="mt-8">
+          <button
+            onClick={handleBack}
+            className="px-6 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition"
+          >
+            コーディングを始める！
+          </button>
+        </div>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 # APIルーターのインポート
-from routers import qanda, summary, tasks, framework, directory, environment
+from routers import qanda, summary, tasks, framework, directory, environment, projects
 
 app = FastAPI(
     title="LangChain Server",
@@ -23,6 +23,7 @@ async def root():
     return {"message": "Hello World"}
 
 # APIルーターの登録
+app.include_router(projects.router)
 app.include_router(qanda.router, prefix="/api/yume_question", tags=["Q&A"])
 app.include_router(summary.router, prefix="/api/yume_summary", tags=["Summary"])
 app.include_router(tasks.router, prefix="/api/get_object_and_tasks", tags=["Tasks"])
