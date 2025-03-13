@@ -77,7 +77,7 @@ export default function EnvHandsOnPage() {
 
     // セッションストレージから各種データを取得
     const dream = sessionStorage.getItem("dream");         // アイデア
-    const duration = sessionStorage.getItem("duration");   // 期間(ここでは未使用だが、必要なら使う)
+    const duration = sessionStorage.getItem("duration");   // 期間
     const numPeople = sessionStorage.getItem("numPeople"); // 人数
     const specification = sessionStorage.getItem("specification");
     const framework = sessionStorage.getItem("framework");
@@ -85,21 +85,26 @@ export default function EnvHandsOnPage() {
     // tasks は詳細なしのタスクリスト
     const tasks = sessionStorage.getItem("tasks");
 
-    if (!dream || !numPeople || !specification || !framework || !directory || !tasks) {
+    if (!dream || !duration || !numPeople || !specification || !framework || !directory || !tasks) {
       alert("プロジェクト情報が不足しています。");
       return;
     }
 
     // detailedTasks を配列にパース
     const detailedTasksArray = JSON.parse(detailedTasks);
+    const tasksWithAssignment = detailedTasksArray.map((task: any) => ({
+      ...task,
+      assignment: task.assignment ?? "",
+    }));
     // DB に送る際、task_info は string[] を想定 ⇒ 各タスクを JSON.stringify して入れるなど方法は任意
     // ここでは各 detailTask オブジェクトをまとめて string 化
-    const taskInfoStrings = detailedTasksArray.map((taskObj: any) => JSON.stringify(taskObj));
+    const taskInfoStrings = tasksWithAssignment.map((taskObj: any) => JSON.stringify(taskObj));
 
     // DB に送るリクエストボディを組み立て
     // (仕様書に沿う形)
     const requestBody = {
       idea: dream,
+      duration: duration,
       num_people: parseInt(numPeople, 10),
       specification: specification,
       selected_framework: framework,

@@ -74,6 +74,8 @@ export default function TaskDivisionPage() {
           throw new Error("タスク分割APIエラー: " + tasksRes.statusText);
         }
         const tasksData: TaskResponse = await tasksRes.json();
+        // タスク情報をセッションストレージに保存
+        sessionStorage.setItem("taskRes", JSON.stringify(tasksData));
         // UI には詳細なしのタスクリストを表示する
         setTasks(tasksData.tasks);
       } catch (err: any) {
@@ -93,18 +95,14 @@ export default function TaskDivisionPage() {
     if (tasks.length > 0) {
       const fetchTaskDetails = async () => {
         try {
+          // タスク情報をセッションストレージから呼び出す
+          const taskRes = JSON.parse(sessionStorage.getItem("taskRes") || "");
           const res = await fetch(
             process.env.NEXT_PUBLIC_API_URL + "/api/taskDetail/",
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                tasks: tasks.map((task) => ({
-                  task_name: task.taskName,
-                  priority: task.priority,
-                  content: task.content,
-                })),
-              }),
+              body: JSON.stringify((taskRes)),
             }
           );
           if (!res.ok) {
