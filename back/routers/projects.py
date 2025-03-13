@@ -10,6 +10,7 @@ router = APIRouter()
 # Pydanticモデル（入力用）
 class ProjectCreate(BaseModel):
     idea: str
+    duration: str
     num_people: int
     specification: str
     selected_framework: str
@@ -19,6 +20,7 @@ class ProjectCreate(BaseModel):
 # Pydanticモデル（更新用）
 class ProjectUpdate(BaseModel):
     idea: str = None
+    duration: str = None
     num_people: int = None
     specification: str = None
     selected_framework: str = None
@@ -39,6 +41,7 @@ def create_project(project: ProjectCreate, db: Session = Depends(get_db)):
     db_project = Project(
         project_id=project_id,
         idea=project.idea,
+        duration=project.duration,
         num_people=project.num_people,
         specification=project.specification,
         selected_framework=project.selected_framework,
@@ -58,6 +61,7 @@ def get_project(project_id: str, db: Session = Depends(get_db)):
     return {
         "project_id": project.project_id,
         "idea": project.idea,
+        "duration": project.duration,
         "num_people": project.num_people,
         "specification": project.specification,
         "selected_framework": project.selected_framework,

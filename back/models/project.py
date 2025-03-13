@@ -11,6 +11,9 @@ class Project(Base):
     # アイデア（文字列）
     idea = Column(String, nullable=False)
     
+    # 期間（文字列）
+    duration = Column(String, nullable=False)
+    
     # 人数（整数型）
     num_people = Column(Integer, nullable=False)
     

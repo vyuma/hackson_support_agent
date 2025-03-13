@@ -1,39 +1,30 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import ParticipantColumn from "../../components/ParticipantColumn";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
-/**
- * 画面表示で使用するTask型
- */
-interface Task {
-  taskName: string;
-  priority: "Must" | "Should" | "Could";
-  content: string;
-  assignee: string; // サーバーからは無い場合があるのでデフォルト値を考慮
-}
+import type { ProjectData, Task } from "../../types/taskTypes";
+import Column from "../../components/Column";
 
-/**
- * 画面上で扱うProject型
- */
-interface Project {
-  project_id: string;
-  idea: string;
-  num_people: number;
-  tasks: Task[];
-}
+// カラム用ラベル
+const UNASSIGNED = "";
+const DONE = "done";
 
+/** カンバンページ本体 */
 export default function ProjectBoardPage() {
   const router = useRouter();
   const pathname = usePathname();
-  // URL: /projects/[projectId]/ から UUID を取得
-  const projectId = pathname.split("/").pop();
+  const projectId = pathname.split("/").pop() || "";
 
-  const [project, setProject] = useState<Project | null>(null);
+  const [project, setProject] = useState<ProjectData | null>(null);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [participants, setParticipants] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // プロジェクト情報の取得
   useEffect(() => {
     if (!projectId) {
       setLoading(false);
@@ -47,86 +38,141 @@ export default function ProjectBoardPage() {
           `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}`
         );
         if (!res.ok) throw new Error("プロジェクト取得エラー");
-        const data = await res.json();
+        const data: ProjectData = await res.json();
 
-        // dataのフォーマット例:
-        // {
-        //   "project_id": "...",
-        //   "idea": "string",
-        //   "num_people": 2,
-        //   "specification": "string",
-        //   "selected_framework": "string",
-        //   "directory_info": "string",
-        //   "task_info": [
-        //       "{\"task_name\": \"要件定義\", \"priority\": \"Must\", \"content\": \"...\"}"
-        //   ]
-        // }
-        // → task_info は各要素が JSON文字列として格納されている
-
-        // task_info の各要素をパースして、画面表示用に整形
-        const parsedTasks: Task[] = data.task_info.map((taskStr: string) => {
+        // task_info => string[] => 各要素を JSON.parse
+        const allTasks: Task[] = [];
+        data.task_info.forEach((taskInfoStr) => {
           try {
-            const parsed = JSON.parse(taskStr);
-            return {
-              taskName: parsed.task_name || "No Name",
-              priority: parsed.priority || "Should", // Must / Should / Could
-              content: parsed.content || "",
-              assignee: parsed.assignee || "", // サーバーでassigneeが無い場合は空文字で対応
-            };
-          } catch (err) {
-            console.error("タスク情報のパースエラー:", err);
-            return {
-              taskName: "Parse Error",
-              priority: "Could",
-              content: "",
-              assignee: "",
-            };
+            const parsed = JSON.parse(taskInfoStr); 
+            // parsed => { tasks: Task[] }
+            if (Array.isArray(parsed.tasks)) {
+              parsed.tasks.forEach((t: Task, idx: number) => {
+                // __indexを付加しておく
+                (t as any).__index = allTasks.length;
+                allTasks.push(t);
+              });
+            }
+          } catch (parseErr) {
+            console.error("タスク情報パース失敗:", parseErr);
           }
         });
 
-        const projectData: Project = {
-          project_id: data.project_id,
-          idea: data.idea,
-          num_people: data.num_people,
-          tasks: parsedTasks,
-        };
-        setProject(projectData);
+        setProject(data);
+        setTasks(allTasks);
+        setParticipants(["A", "B"]);
       } catch (err: any) {
         setError(err.message || "エラーが発生しました");
       } finally {
         setLoading(false);
       }
     };
-
     fetchProject();
   }, [projectId]);
 
+  /** カードをドロップした時に assignment を更新し、サーバーにも送る */
+  const handleDropTask = useCallback(
+    async (dragIndex: number, newAssignment: string) => {
+      // タスクを更新
+      const updatedTasks = tasks.map((task) => {
+        if ((task as any).__index === dragIndex) {
+          return { ...task, assignment: newAssignment };
+        }
+        return task;
+      });
+      setTasks(updatedTasks);
+
+      // DB 更新 => project情報を再送
+      if (!project) return;
+      const newTaskInfo = buildTaskInfoObject(updatedTasks);
+      const reqBody = {
+        project_id: project.project_id,
+        idea: project.idea,
+        duration: project.duration,
+        num_people: project.num_people,
+        specification: project.specification,
+        selected_framework: project.selected_framework,
+        directory_info: project.directory_info,
+        task_info: newTaskInfo, // string[]
+      };
+
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/projects/${project.project_id}`,
+          {
+            method: "PUT", // or POST など、サーバー仕様に合わせる
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(reqBody),
+          }
+        );
+        if (!res.ok) {
+          console.error("プロジェクト更新失敗:", res.statusText);
+        }
+      } catch (updErr) {
+        console.error("プロジェクト更新エラー:", updErr);
+      }
+    },
+    [tasks, project]
+  );
+
+  // タスクの詳細ページへ
+  const handleTaskClick = (index: number) => {
+    router.push(`/projects/${projectId}/task/${index}`);
+  };
+
   if (loading) return <p>ロード中...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
-  if (!project) return <p>プロジェクトが見つかりません</p>;
+  if (!project) return <p>プロジェクト情報がありません。</p>;
 
-  // 担当者（assignee）ごとにタスクをグループ化
-  const participants = Array.from(new Set(project.tasks.map(task => task.assignee)));
+  // カンバン表示用にタスクをフィルタ
+  const unassigned = tasks.filter((t) => t.assignment === UNASSIGNED);
+  const doneTasks = tasks.filter((t) => t.assignment === DONE);
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">プロジェクト作業（カンバン形式）</h1>
-      <p className="mb-4">プロジェクトID: {project.project_id}</p>
-      <p className="mb-4">アイデア: {project.idea}</p>
-      <p className="mb-4">人数: {project.num_people}</p>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-        {participants.map((participant) => {
-          // 空文字（assigneeが設定されていない）用の表示
-          const displayName = participant || "未担当";
+    <DndProvider backend={HTML5Backend}>
+      {/* ヘッダー */}
+      <header className="p-4 bg-gray-800 text-white mb-4">
+        <h1 className="text-2xl font-bold">プロジェクト: {project.idea}</h1>
+        <p>ID: {project.project_id} / 人数: {project.num_people}</p>
+      </header>
+
+      {/* カラム群 */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4">
+        {/* 未定のコラム */}
+        <Column
+          assignmentKey={UNASSIGNED}
+          columnTitle="未定"
+          tasks={unassigned}
+          onDropTask={handleDropTask}
+        />
+        {/* 参加者列 (複数) */}
+        {participants.map((name) => {
+          const participantTasks = tasks.filter((t) => t.assignment === name);
           return (
-            <ParticipantColumn
-              key={displayName}
-              participant={displayName}
-              tasks={project.tasks.filter(task => task.assignee === participant)}
+            <Column
+              key={name}
+              assignmentKey={name}
+              columnTitle={name}
+              tasks={participantTasks}
+              onDropTask={handleDropTask}
             />
           );
         })}
+        {/* 完了コラム */}
+        <Column
+          assignmentKey={DONE}
+          columnTitle="完了"
+          tasks={doneTasks}
+          onDropTask={handleDropTask}
+        />
       </div>
-    </div>
+    </DndProvider>
   );
+}
+
+/** タスク配列 => task_info(string[]) へ変換する補助関数 */
+function buildTaskInfoObject(allTasks: Task[]): string[] {
+  // この例では { tasks: [...Task] } を 1要素の JSON 文字列に変換
+  const obj = { tasks: allTasks };
+  return [JSON.stringify(obj)];
 }
