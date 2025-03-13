@@ -8,10 +8,12 @@ interface Task {
   taskName: string;
   priority: "Must" | "Should" | "Could";
   content: string;
+  // detail は UI には表示せず、API呼び出し結果としてセッションストレージに保存するだけ
+  detail?: string;
 }
 
 interface DirectoryResponse {
-    directory_structure: string;
+  directory_structure: string;
 }
 
 interface TaskResponse {
@@ -72,6 +74,7 @@ export default function TaskDivisionPage() {
           throw new Error("タスク分割APIエラー: " + tasksRes.statusText);
         }
         const tasksData: TaskResponse = await tasksRes.json();
+        // UI には詳細なしのタスクリストを表示する
         setTasks(tasksData.tasks);
       } catch (err: any) {
         console.error(err);
@@ -84,9 +87,43 @@ export default function TaskDivisionPage() {
     fetchDirectoryAndTasks();
   }, []);
 
+  // タスクが読み込まれたら非同期でタスク詳細化APIを呼び出し、
+  // 結果はセッションストレージに保存する（UIには反映しない）
+  useEffect(() => {
+    if (tasks.length > 0) {
+      const fetchTaskDetails = async () => {
+        try {
+          const res = await fetch(
+            process.env.NEXT_PUBLIC_API_URL + "/api/taskDetail/",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                tasks: tasks.map((task) => ({
+                  task_name: task.taskName,
+                  priority: task.priority,
+                  content: task.content,
+                })),
+              }),
+            }
+          );
+          if (!res.ok) {
+            throw new Error("タスク詳細化APIエラー: " + res.statusText);
+          }
+          const data = await res.json();
+          // 詳細付きタスクをセッションストレージに保存（UI の tasks には影響しない）
+          sessionStorage.setItem("detailedTasks", JSON.stringify(data.tasks));
+        } catch (err: any) {
+          console.error("TaskDetail API エラー:", err);
+        }
+      };
+      fetchTaskDetails();
+    }
+  }, [tasks]);
+
   // 環境構築ハンズオンAPI呼び出し＆遷移処理
   const handleProceedToEnv = async () => {
-    // タスク内容をセッションストレージに保存
+    // タスク内容（非詳細版）をセッションストレージに保存
     sessionStorage.setItem("tasks", JSON.stringify(tasks));
 
     // 仕様書、フレームワーク、ディレクトリ情報を取得
@@ -100,11 +137,14 @@ export default function TaskDivisionPage() {
     }
 
     try {
-      const res = await fetch(process.env.NEXT_PUBLIC_API_URL + "/api/environment/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ specification, directory, framework }),
-      });
+      const res = await fetch(
+        process.env.NEXT_PUBLIC_API_URL + "/api/environment/",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ specification, directory, framework }),
+        }
+      );
       if (!res.ok) {
         throw new Error("環境構築APIエラー: " + res.statusText);
       }
