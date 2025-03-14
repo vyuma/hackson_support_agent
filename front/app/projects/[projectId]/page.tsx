@@ -5,14 +5,13 @@ import { useRouter, usePathname } from "next/navigation";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
-import type { ProjectData, Task } from "../../types/taskTypes";
+import type { Task, ProjectData } from "../../types/taskTypes";
 import Column from "../../components/Column";
 
 // カラム用ラベル
 const UNASSIGNED = "";
 const DONE = "done";
 
-/** カンバンページ本体 */
 export default function ProjectBoardPage() {
   const router = useRouter();
   const pathname = usePathname();
@@ -40,19 +39,27 @@ export default function ProjectBoardPage() {
         if (!res.ok) throw new Error("プロジェクト取得エラー");
         const data: ProjectData = await res.json();
 
-        // task_info => string[] => 各要素を JSON.parse
+        /**
+         * サーバーから返る task_info は string[] で、
+         * 各要素が {
+         *   "task_name": "...",
+         *   "priority": "...",
+         *   "content": "...",
+         *   "detail": "...",
+         *   "assignment": ""
+         * } といった「単独タスク」だった場合
+         */
         const allTasks: Task[] = [];
-        data.task_info.forEach((taskInfoStr) => {
+        data.task_info.forEach((taskStr, idx) => {
           try {
-            const parsed = JSON.parse(taskInfoStr); 
-            // parsed => { tasks: Task[] }
-            if (Array.isArray(parsed.tasks)) {
-              parsed.tasks.forEach((t: Task, idx: number) => {
-                // __indexを付加しておく
-                (t as any).__index = allTasks.length;
-                allTasks.push(t);
-              });
-            }
+            const parsed = JSON.parse(taskStr);
+            // parsed は単体タスクオブジェクトと想定:
+            // { task_name: "", priority: "", content: "", detail: "", assignment: "" }
+            // さらに、__indexを付与
+            allTasks.push({
+              ...parsed,
+              __index: idx, // ユニークなindexにする
+            });
           } catch (parseErr) {
             console.error("タスク情報パース失敗:", parseErr);
           }
@@ -60,6 +67,8 @@ export default function ProjectBoardPage() {
 
         setProject(data);
         setTasks(allTasks);
+
+        // 参加者リスト (仮)
         setParticipants(["A", "B"]);
       } catch (err: any) {
         setError(err.message || "エラーが発生しました");
@@ -70,21 +79,29 @@ export default function ProjectBoardPage() {
     fetchProject();
   }, [projectId]);
 
-  /** カードをドロップした時に assignment を更新し、サーバーにも送る */
+  // カードのドロップ時に assignment を更新してサーバーにも送る
   const handleDropTask = useCallback(
     async (dragIndex: number, newAssignment: string) => {
-      // タスクを更新
       const updatedTasks = tasks.map((task) => {
-        if ((task as any).__index === dragIndex) {
+        if (task.__index === dragIndex) {
           return { ...task, assignment: newAssignment };
         }
         return task;
       });
       setTasks(updatedTasks);
 
-      // DB 更新 => project情報を再送
       if (!project) return;
-      const newTaskInfo = buildTaskInfoObject(updatedTasks);
+
+      // task_info の更新
+      // => 各タスクオブジェクトを JSON.stringify し直して配列化
+      const updatedTaskInfo = updatedTasks.map((t) => JSON.stringify({
+        task_name: t.task_name,
+        priority: t.priority,
+        content: t.content,
+        detail: t.detail,
+        assignment: t.assignment
+      }));
+
       const reqBody = {
         project_id: project.project_id,
         idea: project.idea,
@@ -93,14 +110,14 @@ export default function ProjectBoardPage() {
         specification: project.specification,
         selected_framework: project.selected_framework,
         directory_info: project.directory_info,
-        task_info: newTaskInfo, // string[]
+        task_info: updatedTaskInfo, // updated tasks
       };
 
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/projects/${project.project_id}`,
           {
-            method: "PUT", // or POST など、サーバー仕様に合わせる
+            method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(reqBody),
           }
@@ -115,7 +132,7 @@ export default function ProjectBoardPage() {
     [tasks, project]
   );
 
-  // タスクの詳細ページへ
+  // タスク詳細ページへ (例: indexベースで)
   const handleTaskClick = (index: number) => {
     router.push(`/projects/${projectId}/task/${index}`);
   };
@@ -124,19 +141,17 @@ export default function ProjectBoardPage() {
   if (error) return <p className="text-red-500">{error}</p>;
   if (!project) return <p>プロジェクト情報がありません。</p>;
 
-  // カンバン表示用にタスクをフィルタ
+  // カラム表示用
   const unassigned = tasks.filter((t) => t.assignment === UNASSIGNED);
   const doneTasks = tasks.filter((t) => t.assignment === DONE);
+  const assigned = (name: string) => tasks.filter((t) => t.assignment === name);
 
   return (
     <DndProvider backend={HTML5Backend}>
-      {/* ヘッダー */}
       <header className="p-4 bg-gray-800 text-white mb-4">
         <h1 className="text-2xl font-bold">プロジェクト: {project.idea}</h1>
         <p>ID: {project.project_id} / 人数: {project.num_people}</p>
       </header>
-
-      {/* カラム群 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4">
         {/* 未定のコラム */}
         <Column
@@ -145,20 +160,17 @@ export default function ProjectBoardPage() {
           tasks={unassigned}
           onDropTask={handleDropTask}
         />
-        {/* 参加者列 (複数) */}
-        {participants.map((name) => {
-          const participantTasks = tasks.filter((t) => t.assignment === name);
-          return (
-            <Column
-              key={name}
-              assignmentKey={name}
-              columnTitle={name}
-              tasks={participantTasks}
-              onDropTask={handleDropTask}
-            />
-          );
-        })}
-        {/* 完了コラム */}
+        {/* 参加者列 */}
+        {participants.map((name) => (
+          <Column
+            key={name}
+            assignmentKey={name}
+            columnTitle={name}
+            tasks={assigned(name)}
+            onDropTask={handleDropTask}
+          />
+        ))}
+        {/* 完了のコラム */}
         <Column
           assignmentKey={DONE}
           columnTitle="完了"
@@ -170,9 +182,25 @@ export default function ProjectBoardPage() {
   );
 }
 
-/** タスク配列 => task_info(string[]) へ変換する補助関数 */
-function buildTaskInfoObject(allTasks: Task[]): string[] {
-  // この例では { tasks: [...Task] } を 1要素の JSON 文字列に変換
-  const obj = { tasks: allTasks };
-  return [JSON.stringify(obj)];
+/** Taskなどの型定義例
+
+export interface Task {
+  task_name: string;
+  priority: "Must" | "Should" | "Could";
+  content: string;
+  detail?: string;
+  assignment?: string;
+  __index?: number; // DnD用
 }
+
+export interface ProjectData {
+  project_id: string;
+  idea: string;
+  duration: string;
+  num_people: number;
+  specification: string;
+  selected_framework: string;
+  directory_info: string;
+  task_info: string[];
+}
+*/
