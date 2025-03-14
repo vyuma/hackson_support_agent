@@ -20,9 +20,7 @@ export default function ProjectBoardPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  // ★ menber_info をローカルステート管理 (["A","B","C"]など)
-  const [members, setMembers] = useState<string[]>([]);
+  const [members, setMembers] = useState<string[]>([]); // menber_info
 
   /** プロジェクト情報の取得 */
   useEffect(() => {
@@ -38,11 +36,13 @@ export default function ProjectBoardPage() {
         if (!res.ok) throw new Error("プロジェクト取得エラー");
         const data: ProjectData = await res.json();
 
-        // task_info => string[] => 各要素を {task_name, ...} としてパース
+        // task_info => string[] => 各要素をパース (単一タスク or { task_id, task_name, ... })
         const allTasks: Task[] = [];
         data.task_info.forEach((taskStr, idx) => {
           try {
             const parsed = JSON.parse(taskStr);
+            // 例: { "task_id": "abc123", "task_name": "...", ... }
+            // __index でドラッグ用の一意番号を付ける
             allTasks.push({ ...parsed, __index: idx });
           } catch (parseErr) {
             console.error("タスク情報パース失敗:", parseErr);
@@ -51,8 +51,6 @@ export default function ProjectBoardPage() {
 
         setProject(data);
         setTasks(allTasks);
-        // ★ menber_info（スペルはサーバー仕様に合わせて）
-        // ここで data.menber_info が存在するなら、それをステートにセット
         setMembers(data.menber_info ?? []);
       } catch (err: any) {
         setError(err.message || "エラーが発生しました");
@@ -72,9 +70,10 @@ export default function ProjectBoardPage() {
       );
       setTasks(updatedTasks);
 
-      // 更新用の task_info
+      // 更新用の task_info (再JSON化)
       const updatedTaskInfo = updatedTasks.map((t) =>
         JSON.stringify({
+          task_id: t.task_id,       // ★ 追加
           task_name: t.task_name,
           priority: t.priority,
           content: t.content,
@@ -83,11 +82,10 @@ export default function ProjectBoardPage() {
         })
       );
 
-      // PUT送信用ボディ
       const reqBody = {
         ...project,
         task_info: updatedTaskInfo,
-        menber_info: members, // ☆ メンバーも同じまま送る
+        menber_info: members, 
       };
 
       try {
@@ -122,6 +120,7 @@ export default function ProjectBoardPage() {
 
     const updatedTaskInfo = tasks.map((t) =>
       JSON.stringify({
+        task_id: t.task_id,
         task_name: t.task_name,
         priority: t.priority,
         content: t.content,
@@ -155,10 +154,9 @@ export default function ProjectBoardPage() {
     }
   };
 
-  // タスク詳細ページへ
-  const handleTaskClick = (index: number) => {
-    // 例: /projects/{projectId}/task/{index} に飛ばす
-    router.push(`/projects/${projectId}/task/${index}`);
+  // タスク詳細ページへ (★ task_id を利用)
+  const handleTaskDetail = (taskId: string) => {
+    router.push(`/projects/${projectId}/tasks/${taskId}`);
   };
 
   if (loading) return <p>ロード中...</p>;
@@ -184,6 +182,7 @@ export default function ProjectBoardPage() {
           tasks={unassignedTasks}
           onDropTask={handleDropTask}
           isMemberColumn={false}
+          onTaskDetail={handleTaskDetail}  // ★コールバックを渡す
         />
 
         {/* メンバーColumn (各列) */}
@@ -197,9 +196,8 @@ export default function ProjectBoardPage() {
               tasks={assignedTasks}
               onDropTask={handleDropTask}
               isMemberColumn={true}
-              onMemberNameChange={(newName: string) =>
-                handleMemberNameChange(colIndex, newName)
-              }
+              onMemberNameChange={(newName: string) => handleMemberNameChange(colIndex, newName)}
+              onTaskDetail={handleTaskDetail} // ★
             />
           );
         })}
@@ -211,6 +209,7 @@ export default function ProjectBoardPage() {
           tasks={doneTasks}
           onDropTask={handleDropTask}
           isMemberColumn={false}
+          onTaskDetail={handleTaskDetail} // ★
         />
       </div>
 

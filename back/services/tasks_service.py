@@ -34,6 +34,7 @@ class TasksService(BaseService):
                         フレームワーク:
                         {framework}
                         各タスクには、タスク名、優先度（Must, Should, Could）、具体的な内容を含めてください。
+                        具体的に言うと、task_name: str 、priority: str ("Must", "Should", "Could") のいずれか 、content: strの全てを必ず含むものです。
                         回答は以下のフォーマットに従い、JSON形式で出力してください。
                         {format_instructions}
                     """,

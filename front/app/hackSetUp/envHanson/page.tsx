@@ -92,10 +92,14 @@ export default function EnvHandsOnPage() {
 
     // detailedTasks を配列にパース
     const detailedTasksArray = JSON.parse(detailedTasks);
-    const tasksWithAssignment = detailedTasksArray.map((task: any) => ({
+
+    // 各タスクに assignment, ID プロパティを追加
+    const tasksWithAssignment = detailedTasksArray.map((task: any, index: number) => ({
       ...task,
       assignment: task.assignment ?? "",
+      task_id: index,
     }));
+
     // DB に送る際、task_info は string[] を想定 ⇒ 各タスクを JSON.stringify して入れるなど方法は任意
     // ここでは各 detailTask オブジェクトをまとめて string 化
     const taskInfoStrings = tasksWithAssignment.map((taskObj: any) => JSON.stringify(taskObj));

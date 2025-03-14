@@ -1,5 +1,6 @@
 /** タスク情報 (サーバーやフロントで扱う共通) */
 export interface Task {
+    task_id: string;
     task_name: string;
     priority: "Must" | "Should" | "Could";
     content: string;

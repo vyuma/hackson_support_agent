@@ -11,10 +11,10 @@ interface ColumnProps {
   columnTitle: string;
   tasks: Task[];
   onDropTask: (dragIndex: number, newAssignment: string) => void;
-  /** メンバー列ならtrue。名前編集可能か否か */
   isMemberColumn: boolean;
-  /** メンバー名変更イベント (isMemberColumnがtrueのときだけ使う) */
   onMemberNameChange?: (newName: string) => void;
+  // ★ カードから「詳細」ボタン押下されたときのハンドラ
+  onTaskDetail: (taskId: string) => void;
 }
 
 const Column: React.FC<ColumnProps> = ({
@@ -24,6 +24,7 @@ const Column: React.FC<ColumnProps> = ({
   onDropTask,
   isMemberColumn,
   onMemberNameChange,
+  onTaskDetail,
 }) => {
   const columnRef = useRef<HTMLDivElement>(null);
 
@@ -67,9 +68,7 @@ const Column: React.FC<ColumnProps> = ({
           key={task.__index ?? idx}
           task={task}
           index={task.__index ?? idx}
-          onClick={() => {
-            // カードクリック時の処理
-          }}
+          onTaskDetail={onTaskDetail} // ★
         />
       ))}
     </div>
