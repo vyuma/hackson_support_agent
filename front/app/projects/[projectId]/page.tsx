@@ -178,6 +178,11 @@ export default function ProjectBoardPage() {
           onClick={() => router.push(`/projects/${projectId}/directory`)}
           className="px-4 py-2 bg-blue-600 text-white rounded mt-2"
         >ディレクトリ表示</button>
+        {/* 環境構築ハンズオン表示ページに飛ばすボタン */}
+        <button
+          onClick={() => router.push(`/projects/${projectId}/envHanson`)}
+          className="px-4 py-2 bg-blue-600 text-white rounded mt-2"
+        >環境構築ハンズオンに戻る</button>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4">

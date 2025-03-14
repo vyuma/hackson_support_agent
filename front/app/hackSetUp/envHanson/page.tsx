@@ -84,8 +84,9 @@ export default function EnvHandsOnPage() {
     const directory = sessionStorage.getItem("directory");
     // tasks は詳細なしのタスクリスト
     const tasks = sessionStorage.getItem("tasks");
+    const envHanson = sessionStorage.getItem("envHanson");  // 環境構築ハンズオン
 
-    if (!dream || !duration || !numPeople || !specification || !framework || !directory || !tasks) {
+    if (!dream || !duration || !numPeople || !specification || !framework || !directory || !tasks || !envHanson) {
       alert("プロジェクト情報が不足しています。");
       return;
     }
@@ -118,6 +119,7 @@ export default function EnvHandsOnPage() {
       directory_info: directory,
       menber_info: members,
       task_info: taskInfoStrings,
+      envHanson: envHanson,
     };
 
     try {
