@@ -37,3 +37,6 @@ RUN apt-get clean && \
 
 # gitのダウンロード
 RUN apt-get update && apt-get install -y git
+
+# コンテナが終了しないように tail -f /dev/null を実行
+CMD ["tail", "-f", "/dev/null"]
