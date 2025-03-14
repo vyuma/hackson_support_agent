@@ -156,6 +156,7 @@ export default function ProjectBoardPage() {
 
   // タスク詳細ページへ (★ task_id を利用)
   const handleTaskDetail = (taskId: string) => {
+    console.log("タスク詳細ページへ遷移:", taskId);
     router.push(`/projects/${projectId}/tasks/${taskId}`);
   };
 

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import MarkdownViewer from "../../../../components/MarkdownViewer";
+import ChatBot from "../../../../components/ChatBot";
 import type { Task } from "../../../../types/taskTypes";
 
 export default function TaskDetailPage() {
@@ -16,6 +17,12 @@ export default function TaskDetailPage() {
   const [task, setTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // 仕様書やディレクトリ構成、フレームワークなど、DBから取得しておいたり、
+  // あるいはsessionStorageから読み込む等、好きな方法で用意する
+  const [specification, setSpecification] = useState<string>("");
+  const [directoryStructure, setDirectoryStructure] = useState<string>("");
+  const [framework, setFramework] = useState<string>("");
 
   useEffect(() => {
     if (!projectId || !taskId) {
@@ -39,6 +46,18 @@ export default function TaskDetailPage() {
           return;
         }
         const data = await res.json();
+
+        // data 内から 仕様書・ディレクトリ構成・フレームワークを設定
+        setSpecification(data.specification || "");
+        setDirectoryStructure(data.directory_info || "");
+        setFramework(data.selected_framework || "");
+
+        console.log("specification:", data.specification);
+        console.log("directory_info:", data.directory_info);
+        console.log("selected_framework:", data.selected_framework);
+        console.log("task_info:", data.task_info);
+
+        // タスクを検索
         let found: Task | null = null;
         data.task_info.forEach((taskStr: string, idx: number) => {
           try {
@@ -73,10 +92,7 @@ export default function TaskDetailPage() {
 
   return (
     <div className="p-4">
-      <button
-        onClick={() => router.back()}
-        className="px-4 py-2 bg-gray-300 rounded mb-4"
-      >
+      <button onClick={() => router.back()} className="px-4 py-2 bg-gray-300 rounded mb-4">
         戻る
       </button>
       <h1 className="text-2xl font-bold mb-2">{task.task_name}</h1>
@@ -87,6 +103,13 @@ export default function TaskDetailPage() {
       <p className="mb-2">{task.content}</p>
       <h2 className="text-xl font-semibold mb-2">詳細 (detail):</h2>
       <MarkdownViewer markdown={task.detail || ""} />
+      {/* チャットボットコンポーネント */}
+      <ChatBot
+        specification={specification}
+        directoryStructure={directoryStructure}
+        framework={framework}
+        taskDetail={task.detail || ""}
+      />
     </div>
   );
 }
