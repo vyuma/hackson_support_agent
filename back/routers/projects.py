@@ -17,6 +17,7 @@ class ProjectCreate(BaseModel):
     directory_info: str
     menber_info: list  # 各メンバーの情報のリスト
     task_info: list  # 各タスクの情報のリスト
+    envHanson: str # 環境構築ハンズオン
 
 # Pydanticモデル（更新用）
 class ProjectUpdate(BaseModel):
@@ -28,6 +29,7 @@ class ProjectUpdate(BaseModel):
     directory_info: str = None
     menber_info: list = None
     task_info: list = None
+    envHanson: str = None
 
 # DBセッション取得用 dependency
 def get_db():
@@ -50,6 +52,7 @@ def create_project(project: ProjectCreate, db: Session = Depends(get_db)):
         directory_info=project.directory_info,
         menber_info=project.menber_info,
         task_info=project.task_info,
+        envHanson=project.envHanson,
     )
     db.add(db_project)
     db.commit()
@@ -71,6 +74,7 @@ def get_project(project_id: str, db: Session = Depends(get_db)):
         "directory_info": project.directory_info,
         "menber_info": project.menber_info,
         "task_info": project.task_info,
+        "envHanson": project.envHanson,
     }
 
 @router.get("/projects", summary="全プロジェクト一覧取得")
