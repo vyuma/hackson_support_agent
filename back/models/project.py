@@ -26,5 +26,8 @@ class Project(Base):
     # ディレクトリ情報（長い文字列）
     directory_info = Column(Text, nullable=False)
     
+    # メンバー情報（JSON型：メンバーのリストを保存）
+    menber_info = Column(JSON, nullable=True)
+    
     # タスク情報（JSON型：タスクのリストを保存）
     task_info = Column(JSON, nullable=True)

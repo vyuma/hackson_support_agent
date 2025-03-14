@@ -11,6 +11,7 @@ export interface Task {
   
   /** サーバーから取得するプロジェクトデータ */
   export interface ProjectData {
+    menber_info: never[];
     project_id: string;
     idea: string;
     duration: string;
