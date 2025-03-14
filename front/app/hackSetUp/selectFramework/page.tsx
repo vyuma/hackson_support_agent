@@ -78,8 +78,8 @@ export default function SelectFrameworkPage() {
         platform === "Android"
           ? "【ネイティブ選定】Android向けの開発が推奨されます。"
           : "【ネイティブ選定】iOS向けの開発が推奨されます。";
-      const updatedSpec = specification + "\n" + nativeInfo;
-      sessionStorage.setItem("specification", updatedSpec);
+      
+      sessionStorage.setItem("framework", selectedFrontend!.name + selectedBackend!.name);
     }
     router.push("/hackSetUp/taskDivision");
   };

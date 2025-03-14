@@ -93,16 +93,21 @@ export default function TaskDivisionPage() {
   // 結果はセッションストレージに保存する（UIには反映しない）
   useEffect(() => {
     if (tasks.length > 0) {
+      console.log("タスク詳細化APIを呼び出します");
       const fetchTaskDetails = async () => {
         try {
           // タスク情報をセッションストレージから呼び出す
-          const taskRes = JSON.parse(sessionStorage.getItem("taskRes") || "");
+          const taskResp = JSON.parse(sessionStorage.getItem("taskRes") || "");
+          
+          console.log("tasks:", taskResp);
+          await delay(2000);
+
           const res = await fetch(
             process.env.NEXT_PUBLIC_API_URL + "/api/taskDetail/",
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify((taskRes)),
+              body: JSON.stringify((taskResp)),
             }
           );
           if (!res.ok) {
