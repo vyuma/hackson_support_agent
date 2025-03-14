@@ -11,24 +11,25 @@ interface ColumnProps {
   columnTitle: string;
   tasks: Task[];
   onDropTask: (dragIndex: number, newAssignment: string) => void;
+  /** メンバー列ならtrue。名前編集可能か否か */
+  isMemberColumn: boolean;
+  /** メンバー名変更イベント (isMemberColumnがtrueのときだけ使う) */
+  onMemberNameChange?: (newName: string) => void;
 }
 
-export const Column: React.FC<ColumnProps> = ({
+const Column: React.FC<ColumnProps> = ({
   assignmentKey,
   columnTitle,
   tasks,
   onDropTask,
+  isMemberColumn,
+  onMemberNameChange,
 }) => {
-  /** 
-   * 1) 自前のRef。HTMLDivElementを指す。 
-   * 2) useDrop は refを返すのではなく「drop(node)を呼んで接続」する形にする
-   */
   const columnRef = useRef<HTMLDivElement>(null);
 
-  // useDropの設定
   const [{ isOver }, drop] = useDrop<DragItem, void, { isOver: boolean }>({
-    accept: "TASK", // 例: ItemTypes.TASK でもOK
-    drop: (item: DragItem, monitor: DropTargetMonitor) => {
+    accept: "TASK",
+    drop: (item, monitor: DropTargetMonitor) => {
       onDropTask(item.index, assignmentKey);
     },
     collect: (monitor) => ({
@@ -36,10 +37,6 @@ export const Column: React.FC<ColumnProps> = ({
     }),
   });
 
-  /**
-   * マウントまたは依存変化時に、columnRef.current と drop を接続する
-   * → これにより、columnRef が指すDOM要素が「ドロップ領域」として有効になる
-   */
   useEffect(() => {
     if (columnRef.current) {
       drop(columnRef.current);
@@ -52,14 +49,26 @@ export const Column: React.FC<ColumnProps> = ({
       className="bg-gray-200 p-4 rounded min-h-[200px]"
       style={{ opacity: isOver ? 0.7 : 1 }}
     >
-      <h2 className="font-bold mb-2">{columnTitle}</h2>
+      {isMemberColumn ? (
+        // メンバー列のタイトルをテキストボックスにする
+        <input
+          type="text"
+          value={columnTitle}
+          onChange={(e) => onMemberNameChange?.(e.target.value)}
+          className="font-bold mb-2 border p-1 rounded w-full"
+        />
+      ) : (
+        // 未定/完了コラムはタイトルのまま表示
+        <h2 className="font-bold mb-2">{columnTitle}</h2>
+      )}
+
       {tasks.map((task, idx) => (
         <DragTaskCard
-          key={`${columnTitle}-${idx}`}
+          key={task.__index ?? idx}
           task={task}
           index={task.__index ?? idx}
           onClick={() => {
-            /* クリック時の処理 */
+            // カードクリック時の処理
           }}
         />
       ))}

@@ -100,6 +100,9 @@ export default function EnvHandsOnPage() {
     // ここでは各 detailTask オブジェクトをまとめて string 化
     const taskInfoStrings = tasksWithAssignment.map((taskObj: any) => JSON.stringify(taskObj));
 
+    // 人数分のメンバーの文字列の配列を作成
+    const members = Array.from({ length: parseInt(numPeople) }, () => "menber" + Math.floor(Math.random() * 1000));
+
     // DB に送るリクエストボディを組み立て
     // (仕様書に沿う形)
     const requestBody = {
@@ -109,6 +112,7 @@ export default function EnvHandsOnPage() {
       specification: specification,
       selected_framework: framework,
       directory_info: directory,
+      menber_info: members,
       task_info: taskInfoStrings,
     };
 

@@ -8,7 +8,6 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import type { Task, ProjectData } from "../../types/taskTypes";
 import Column from "../../components/Column";
 
-// カラム用ラベル
 const UNASSIGNED = "";
 const DONE = "done";
 
@@ -19,11 +18,13 @@ export default function ProjectBoardPage() {
 
   const [project, setProject] = useState<ProjectData | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [participants, setParticipants] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // プロジェクト情報の取得
+  // ★ menber_info をローカルステート管理 (["A","B","C"]など)
+  const [members, setMembers] = useState<string[]>([]);
+
+  /** プロジェクト情報の取得 */
   useEffect(() => {
     if (!projectId) {
       setLoading(false);
@@ -33,33 +34,16 @@ export default function ProjectBoardPage() {
 
     const fetchProject = async () => {
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}`
-        );
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}`);
         if (!res.ok) throw new Error("プロジェクト取得エラー");
         const data: ProjectData = await res.json();
 
-        /**
-         * サーバーから返る task_info は string[] で、
-         * 各要素が {
-         *   "task_name": "...",
-         *   "priority": "...",
-         *   "content": "...",
-         *   "detail": "...",
-         *   "assignment": ""
-         * } といった「単独タスク」だった場合
-         */
+        // task_info => string[] => 各要素を {task_name, ...} としてパース
         const allTasks: Task[] = [];
         data.task_info.forEach((taskStr, idx) => {
           try {
             const parsed = JSON.parse(taskStr);
-            // parsed は単体タスクオブジェクトと想定:
-            // { task_name: "", priority: "", content: "", detail: "", assignment: "" }
-            // さらに、__indexを付与
-            allTasks.push({
-              ...parsed,
-              __index: idx, // ユニークなindexにする
-            });
+            allTasks.push({ ...parsed, __index: idx });
           } catch (parseErr) {
             console.error("タスク情報パース失敗:", parseErr);
           }
@@ -67,9 +51,9 @@ export default function ProjectBoardPage() {
 
         setProject(data);
         setTasks(allTasks);
-
-        // 参加者リスト (仮)
-        setParticipants(["A", "B"]);
+        // ★ menber_info（スペルはサーバー仕様に合わせて）
+        // ここで data.menber_info が存在するなら、それをステートにセット
+        setMembers(data.menber_info ?? []);
       } catch (err: any) {
         setError(err.message || "エラーが発生しました");
       } finally {
@@ -79,38 +63,31 @@ export default function ProjectBoardPage() {
     fetchProject();
   }, [projectId]);
 
-  // カードのドロップ時に assignment を更新してサーバーにも送る
+  /** カードのドロップ時に assignment を更新してPUT */
   const handleDropTask = useCallback(
     async (dragIndex: number, newAssignment: string) => {
-      const updatedTasks = tasks.map((task) => {
-        if (task.__index === dragIndex) {
-          return { ...task, assignment: newAssignment };
-        }
-        return task;
-      });
+      if (!project) return;
+      const updatedTasks = tasks.map((t) =>
+        t.__index === dragIndex ? { ...t, assignment: newAssignment } : t
+      );
       setTasks(updatedTasks);
 
-      if (!project) return;
+      // 更新用の task_info
+      const updatedTaskInfo = updatedTasks.map((t) =>
+        JSON.stringify({
+          task_name: t.task_name,
+          priority: t.priority,
+          content: t.content,
+          detail: t.detail,
+          assignment: t.assignment,
+        })
+      );
 
-      // task_info の更新
-      // => 各タスクオブジェクトを JSON.stringify し直して配列化
-      const updatedTaskInfo = updatedTasks.map((t) => JSON.stringify({
-        task_name: t.task_name,
-        priority: t.priority,
-        content: t.content,
-        detail: t.detail,
-        assignment: t.assignment
-      }));
-
+      // PUT送信用ボディ
       const reqBody = {
-        project_id: project.project_id,
-        idea: project.idea,
-        duration: project.duration,
-        num_people: project.num_people,
-        specification: project.specification,
-        selected_framework: project.selected_framework,
-        directory_info: project.directory_info,
-        task_info: updatedTaskInfo, // updated tasks
+        ...project,
+        task_info: updatedTaskInfo,
+        menber_info: members, // ☆ メンバーも同じまま送る
       };
 
       try {
@@ -129,11 +106,58 @@ export default function ProjectBoardPage() {
         console.error("プロジェクト更新エラー:", updErr);
       }
     },
-    [tasks, project]
+    [tasks, project, members]
   );
 
-  // タスク詳細ページへ (例: indexベースで)
+  /** 参加者名の変更イベント */
+  const handleMemberNameChange = (colIndex: number, newName: string) => {
+    const newArr = [...members];
+    newArr[colIndex] = newName;
+    setMembers(newArr);
+  };
+
+  /** 参加者名を保存 (PUT) する */
+  const handleSaveMembers = async () => {
+    if (!project) return;
+
+    const updatedTaskInfo = tasks.map((t) =>
+      JSON.stringify({
+        task_name: t.task_name,
+        priority: t.priority,
+        content: t.content,
+        detail: t.detail,
+        assignment: t.assignment,
+      })
+    );
+
+    const reqBody = {
+      ...project,
+      menber_info: members,
+      task_info: updatedTaskInfo,
+    };
+
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/projects/${project.project_id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(reqBody),
+        }
+      );
+      if (!res.ok) {
+        console.error("参加者名更新失敗:", res.statusText);
+      } else {
+        console.log("参加者名更新成功");
+      }
+    } catch (err) {
+      console.error("参加者名更新エラー:", err);
+    }
+  };
+
+  // タスク詳細ページへ
   const handleTaskClick = (index: number) => {
+    // 例: /projects/{projectId}/task/{index} に飛ばす
     router.push(`/projects/${projectId}/task/${index}`);
   };
 
@@ -141,10 +165,9 @@ export default function ProjectBoardPage() {
   if (error) return <p className="text-red-500">{error}</p>;
   if (!project) return <p>プロジェクト情報がありません。</p>;
 
-  // カラム表示用
-  const unassigned = tasks.filter((t) => t.assignment === UNASSIGNED);
+  // カラム用
+  const unassignedTasks = tasks.filter((t) => t.assignment === UNASSIGNED);
   const doneTasks = tasks.filter((t) => t.assignment === DONE);
-  const assigned = (name: string) => tasks.filter((t) => t.assignment === name);
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -152,55 +175,54 @@ export default function ProjectBoardPage() {
         <h1 className="text-2xl font-bold">プロジェクト: {project.idea}</h1>
         <p>ID: {project.project_id} / 人数: {project.num_people}</p>
       </header>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4">
-        {/* 未定のコラム */}
+        {/* 未定Column */}
         <Column
           assignmentKey={UNASSIGNED}
           columnTitle="未定"
-          tasks={unassigned}
+          tasks={unassignedTasks}
           onDropTask={handleDropTask}
+          isMemberColumn={false}
         />
-        {/* 参加者列 */}
-        {participants.map((name) => (
-          <Column
-            key={name}
-            assignmentKey={name}
-            columnTitle={name}
-            tasks={assigned(name)}
-            onDropTask={handleDropTask}
-          />
-        ))}
-        {/* 完了のコラム */}
+
+        {/* メンバーColumn (各列) */}
+        {members.map((memberName, colIndex) => {
+          const assignedTasks = tasks.filter((t) => t.assignment === memberName);
+          return (
+            <Column
+              key={colIndex}
+              assignmentKey={memberName}
+              columnTitle={memberName}
+              tasks={assignedTasks}
+              onDropTask={handleDropTask}
+              isMemberColumn={true}
+              onMemberNameChange={(newName: string) =>
+                handleMemberNameChange(colIndex, newName)
+              }
+            />
+          );
+        })}
+
+        {/* 完了Column */}
         <Column
           assignmentKey={DONE}
           columnTitle="完了"
           tasks={doneTasks}
           onDropTask={handleDropTask}
+          isMemberColumn={false}
         />
+      </div>
+
+      {/* 参加者名をまとめて保存するボタン */}
+      <div className="p-4">
+        <button
+          onClick={handleSaveMembers}
+          className="px-4 py-2 bg-blue-600 text-white rounded"
+        >
+          参加者名の変更を保存
+        </button>
       </div>
     </DndProvider>
   );
 }
-
-/** Taskなどの型定義例
-
-export interface Task {
-  task_name: string;
-  priority: "Must" | "Should" | "Could";
-  content: string;
-  detail?: string;
-  assignment?: string;
-  __index?: number; // DnD用
-}
-
-export interface ProjectData {
-  project_id: string;
-  idea: string;
-  duration: string;
-  num_people: number;
-  specification: string;
-  selected_framework: string;
-  directory_info: string;
-  task_info: string[];
-}
-*/

@@ -15,6 +15,7 @@ class ProjectCreate(BaseModel):
     specification: str
     selected_framework: str
     directory_info: str
+    menber_info: list  # 各メンバーの情報のリスト
     task_info: list  # 各タスクの情報のリスト
 
 # Pydanticモデル（更新用）
@@ -25,6 +26,7 @@ class ProjectUpdate(BaseModel):
     specification: str = None
     selected_framework: str = None
     directory_info: str = None
+    menber_info: list = None
     task_info: list = None
 
 # DBセッション取得用 dependency
@@ -46,6 +48,7 @@ def create_project(project: ProjectCreate, db: Session = Depends(get_db)):
         specification=project.specification,
         selected_framework=project.selected_framework,
         directory_info=project.directory_info,
+        menber_info=project.menber_info,
         task_info=project.task_info,
     )
     db.add(db_project)
@@ -66,6 +69,7 @@ def get_project(project_id: str, db: Session = Depends(get_db)):
         "specification": project.specification,
         "selected_framework": project.selected_framework,
         "directory_info": project.directory_info,
+        "menber_info": project.menber_info,
         "task_info": project.task_info,
     }
 
