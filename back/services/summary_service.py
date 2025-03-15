@@ -27,6 +27,6 @@ class SummaryService(BaseService):
             """
         )
 
-        chain = yume_summary_system_prompt | self.flash_exp | StrOutputParser()
+        chain = yume_summary_system_prompt | self.flash_llm_pro | StrOutputParser()
         yume_summary = chain.invoke({"yume_answer": yume_answer_str})
         return yume_summary
