@@ -35,6 +35,6 @@ class QandaService(BaseService):
             partial_variables={"format_instructions": parser.get_format_instructions()},
         )
 
-        chain = prompt_template | self.flash_llm_pro | parser
+        chain = prompt_template | self.flash_exp | parser
         result = chain.invoke({"yume_prompt": yume_prompt})
         return {"result": {"Question": result["Question"]}}
