@@ -156,6 +156,7 @@ export default function ProjectBoardPage() {
 
   // タスク詳細ページへ (★ task_id を利用)
   const handleTaskDetail = (taskId: string) => {
+    console.log("タスク詳細ページへ遷移:", taskId);
     router.push(`/projects/${projectId}/tasks/${taskId}`);
   };
 
@@ -172,6 +173,16 @@ export default function ProjectBoardPage() {
       <header className="p-4 bg-gray-800 text-white mb-4">
         <h1 className="text-2xl font-bold">プロジェクト: {project.idea}</h1>
         <p>ID: {project.project_id} / 人数: {project.num_people}</p>
+        {/* ディレクトリ表示ページに飛ばすボタン */}
+        <button
+          onClick={() => router.push(`/projects/${projectId}/directory`)}
+          className="px-4 py-2 bg-blue-600 text-white rounded mt-2"
+        >ディレクトリ表示</button>
+        {/* 環境構築ハンズオン表示ページに飛ばすボタン */}
+        <button
+          onClick={() => router.push(`/projects/${projectId}/envHanson`)}
+          className="px-4 py-2 bg-blue-600 text-white rounded mt-2"
+        >環境構築ハンズオンに戻る</button>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4">

@@ -31,3 +31,6 @@ class Project(Base):
     
     # タスク情報（JSON型：タスクのリストを保存）
     task_info = Column(JSON, nullable=True)
+    
+    # 環境構築ハンズオン
+    envHanson = Column(Text, nullable=True)
