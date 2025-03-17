@@ -8,10 +8,9 @@ $ git clone
 ## back側の環境構築
 
 ```bash
-$ cd back
 $ python -m venv venv
 $ source venv/bin/activate
-$ 
+$ cd back
 $ pip install -r requirements.txt
 ```
 
