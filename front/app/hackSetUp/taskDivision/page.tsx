@@ -12,6 +12,11 @@ interface Task {
   detail?: string;
 }
 
+
+type TaskDetail = {
+  tasks: Task[];
+}
+
 interface DirectoryResponse {
   directory_structure: string;
 }
@@ -112,9 +117,11 @@ export default function TaskDivisionPage() {
     const fetchDirectoryAndTasks = async () => {
       try {
         await fetchTaskDivision();
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error(err);
-        setError(err.message || "エラーが発生しました");
+        const errorMessage = err instanceof Error ? err.message : "エラーが発生しました";
+        setError(errorMessage);
+
       } finally {
         setLoading(false);
       }
@@ -147,10 +154,10 @@ export default function TaskDivisionPage() {
       if (!res.ok) {
         throw new Error("タスク詳細化APIエラー: " + res.statusText);
       }
-      const data = await res.json();
+      const data:TaskDetail = await res.json();
       // 詳細付きタスクをセッションストレージに保存（UI の tasks には影響しない）
       sessionStorage.setItem("detailedTasks", JSON.stringify(data.tasks));
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("TaskDetail API エラー:", err);
     }
   };
@@ -160,7 +167,7 @@ export default function TaskDivisionPage() {
       console.log("タスク詳細化APIを呼び出します");
       fetchTaskDetails();
     }
-  }, [tasks]);
+  }, [tasks, fetchTaskDetails]);
 
   // 環境構築ハンズオンAPI呼び出し＆遷移処理
   const handleProceedToEnv = async () => {
@@ -193,7 +200,7 @@ export default function TaskDivisionPage() {
       // envDataは { overall: string, devcontainer: string, frontend: string, backend: string } を想定
       sessionStorage.setItem("envHanson", JSON.stringify(envData));
       router.push("/hackSetUp/envHanson");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       alert("環境構築APIの呼び出しに失敗しました");
     }

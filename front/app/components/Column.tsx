@@ -30,7 +30,7 @@ const Column: React.FC<ColumnProps> = ({
 
   const [{ isOver }, drop] = useDrop<DragItem, void, { isOver: boolean }>({
     accept: "TASK",
-    drop: (item, monitor: DropTargetMonitor) => {
+    drop: (item) => {
       onDropTask(item.index, assignmentKey);
     },
     collect: (monitor) => ({

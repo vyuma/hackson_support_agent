@@ -15,7 +15,8 @@ const SummaryEditor: React.FC<SummaryEditorProps> = ({ initialSummary, onSummary
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newMarkdown = e.target.value;
     setMarkdown(newMarkdown);
-    onSummaryChange && onSummaryChange(newMarkdown);
+    // onSummaryChange が渡されていれば呼び出す
+    onSummaryChange?.(newMarkdown);
   };
 
   return (

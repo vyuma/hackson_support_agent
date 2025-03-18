@@ -52,8 +52,17 @@ export default function ProjectBoardPage() {
         setProject(data);
         setTasks(allTasks);
         setMembers(data.menber_info ?? []);
-      } catch (err: any) {
-        setError(err.message || "エラーが発生しました");
+      } catch (err: unknown) {
+        console.error(err);
+  
+        // エラーオブジェクトかどうかを確認し、適切にメッセージを抽出
+        const errorMessage = err instanceof Error 
+          ? err.message 
+          : 'Unknown error occurred';
+          
+        alert("DBへの登録に失敗しました: " + errorMessage);
+        setError(errorMessage);
+        
       } finally {
         setLoading(false);
       }

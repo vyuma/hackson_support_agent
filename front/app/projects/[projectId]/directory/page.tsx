@@ -51,8 +51,14 @@ export default function DirectoryPage() {
         setSpecification(data.specification || "");
         // フレームワーク
         setFramework(data.selected_framework || "");
-      } catch (err: any) {
-        setError(err.message || "エラーが発生しました");
+      } catch (err: unknown) {
+        console.error("プロジェクト情報取得エラー:", err);
+        const errorMessage = err instanceof Error 
+        ? err.message 
+        : 'Unknown error occurred';
+        alert("DBへの登録に失敗しました: " + errorMessage);
+        setError("プロジェクト情報の取得に失敗しました");
+        
       } finally {
         setLoading(false);
       }
@@ -60,10 +66,6 @@ export default function DirectoryPage() {
 
     fetchProject();
   }, [projectId]);
-
-  const handlePush = () => {
-    
-  };
 
   if (loading) return <p>ロード中...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
