@@ -12,7 +12,6 @@ interface Task {
   detail?: string;
 }
 
-
 type TaskDetail = {
   tasks: Task[];
 }
@@ -131,6 +130,7 @@ export default function TaskDivisionPage() {
   }, []);
 
   // タスク詳細APIの呼び出し（422の場合、タスク分割APIのみ再実行）
+  // 再帰呼び出しがかかっている
   const fetchTaskDetails = async (retryCount: number = 0) => {
     try {
       const taskResp = JSON.parse(sessionStorage.getItem("taskRes") || "");
@@ -167,7 +167,7 @@ export default function TaskDivisionPage() {
       console.log("タスク詳細化APIを呼び出します");
       fetchTaskDetails();
     }
-  }, [tasks, fetchTaskDetails]);
+  }, [tasks]);
 
   // 環境構築ハンズオンAPI呼び出し＆遷移処理
   const handleProceedToEnv = async () => {
