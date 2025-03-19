@@ -28,7 +28,6 @@ export default function EnvHandsOnPage() {
   const router = useRouter();
   const [envData, setEnvData] = useState<EnvHandsOn | null>(null);
   const [loading, setLoading] = useState(true);
-  const [_dbPosted, setDbPosted] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -138,7 +137,6 @@ export default function EnvHandsOnPage() {
 
     try {
       const projectId = await postToDB(requestBody);
-      setDbPosted(true);
       router.push(`/projects/${projectId}`);
     } catch (err: unknown) {
       console.error(err);
