@@ -12,8 +12,7 @@ export default function HackQA() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<Answers>({});
   const [loading, setLoading] = useState(true);
-  const [processingNext, setProcessingNext] = useState(false);
-  const [dreamAnalysis, setDreamAnalysis] = useState<string | null>(null);
+  const processingNext = false; 
 
   useEffect(() => {
     if (typeof window !== "undefined") {

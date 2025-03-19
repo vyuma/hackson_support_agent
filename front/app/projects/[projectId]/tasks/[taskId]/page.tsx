@@ -75,9 +75,15 @@ export default function TaskDetailPage() {
         } else {
           setError("該当タスクが見つかりません");
         }
-      } catch (err: any) {
-        console.error("プロジェクト情報取得エラー:", err);
-        setError(err.message || "エラーが発生しました");
+      } catch (err: unknown) {
+        console.error(err);
+        // エラーオブジェクトかどうかを確認し、適切にメッセージを抽出
+        const errorMessage = err instanceof Error 
+          ? err.message 
+          : 'Unknown error occurred';
+          
+        alert("DBへの登録に失敗しました: " + errorMessage);
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }

@@ -35,7 +35,7 @@ export default function SelectFrameworkPage() {
         router.push("/");
       }
     }
-  }, []);
+  }, [router]);
 
   // specification が取得できたら、API 呼び出しは一度だけ実施（frameworkData が未取得の場合）
   useEffect(() => {
@@ -73,11 +73,6 @@ export default function SelectFrameworkPage() {
                             `;
       sessionStorage.setItem("framework",frameworkInfo);
     } else {
-      // Android / iOS の場合は簡単な説明を追記
-      const nativeInfo =
-        platform === "Android"
-          ? "【ネイティブ選定】Android向けの開発が推奨されます。"
-          : "【ネイティブ選定】iOS向けの開発が推奨されます。";
       
       sessionStorage.setItem("framework", selectedFrontend!.name + selectedBackend!.name);
     }
