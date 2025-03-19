@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import MarkdownViewer from "../../components/MarkdownViewer";
+import { Task } from "../../types/taskTypes";
 
 interface EnvHandsOn {
   overall: string;
@@ -11,11 +12,22 @@ interface EnvHandsOn {
   backend: string;
 }
 
+type requestBodyType = {
+  idea: string;
+  duration: string;
+  num_people: number;
+  specification: string;
+  selected_framework: string;
+  directory_info: string;
+  menber_info: string[];
+  task_info: string[];
+  envHanson: string;
+}
+
 export default function EnvHandsOnPage() {
   const router = useRouter();
   const [envData, setEnvData] = useState<EnvHandsOn | null>(null);
   const [loading, setLoading] = useState(true);
-  const [dbPosted, setDbPosted] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -36,7 +48,7 @@ export default function EnvHandsOnPage() {
    * DB への POST を行う関数
    * - 成功時は { project_id, message } を受け取り、project_id を返す
    */
-  const postToDB = async (reqBody: any): Promise<string> => {
+  const postToDB = async (reqBody: requestBodyType): Promise<string> => {
     console.log("DBへプロジェクト情報をポストします:", reqBody);
 
     const res = await fetch(
@@ -91,11 +103,12 @@ export default function EnvHandsOnPage() {
       return;
     }
 
+
     // detailedTasks を配列にパース
-    const detailedTasksArray = JSON.parse(detailedTasks);
+    const detailedTasksArray:Task[] = JSON.parse(detailedTasks);
 
     // 各タスクに assignment, ID プロパティを追加
-    const tasksWithAssignment = detailedTasksArray.map((task: any, index: number) => ({
+    const tasksWithAssignment = detailedTasksArray.map((task,index: number) => ({
       ...task,
       assignment: task.assignment ?? "",
       task_id: index,
@@ -103,7 +116,7 @@ export default function EnvHandsOnPage() {
 
     // DB に送る際、task_info は string[] を想定 ⇒ 各タスクを JSON.stringify して入れるなど方法は任意
     // ここでは各 detailTask オブジェクトをまとめて string 化
-    const taskInfoStrings = tasksWithAssignment.map((taskObj: any) => JSON.stringify(taskObj));
+    const taskInfoStrings = tasksWithAssignment.map((taskObj) => JSON.stringify(taskObj));
 
     // 人数分のメンバーの文字列の配列を作成
     const members = Array.from({ length: parseInt(numPeople) }, () => "menber" + Math.floor(Math.random() * 1000));
@@ -124,11 +137,16 @@ export default function EnvHandsOnPage() {
 
     try {
       const projectId = await postToDB(requestBody);
-      setDbPosted(true);
       router.push(`/projects/${projectId}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      alert("DBへの登録に失敗しました: " + err.message);
+      console.error(err);
+      // エラーオブジェクトかどうかを確認し、適切にメッセージを抽出
+      const errorMessage = err instanceof Error 
+        ? err.message 
+        : 'Unknown error occurred';
+        
+      alert("DBへの登録に失敗しました: " + errorMessage);
     }
   };
 

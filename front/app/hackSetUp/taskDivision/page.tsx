@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import TaskCard from "../../components/TaskCard";
 
@@ -10,6 +10,11 @@ interface Task {
   content: string;
   // detail は UI には表示せず、API呼び出し結果としてセッションストレージに保存するだけ
   detail?: string;
+}
+
+
+type TaskDetail = {
+  tasks: Task[];
 }
 
 interface DirectoryResponse {
@@ -112,9 +117,11 @@ export default function TaskDivisionPage() {
     const fetchDirectoryAndTasks = async () => {
       try {
         await fetchTaskDivision();
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error(err);
-        setError(err.message || "エラーが発生しました");
+        const errorMessage = err instanceof Error ? err.message : "エラーが発生しました";
+        setError(errorMessage);
+
       } finally {
         setLoading(false);
       }
@@ -122,45 +129,44 @@ export default function TaskDivisionPage() {
 
     fetchDirectoryAndTasks();
   }, []);
-
-  // タスク詳細APIの呼び出し（422の場合、タスク分割APIのみ再実行）
-  const fetchTaskDetails = async (retryCount: number = 0) => {
-    try {
-      const taskResp = JSON.parse(sessionStorage.getItem("taskRes") || "");
-      const res = await fetch(
-        process.env.NEXT_PUBLIC_API_URL + "/api/taskDetail/",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(taskResp),
-        }
+// タスク詳細APIの呼び出し（422の場合、タスク分割APIのみ再実行）
+const fetchTaskDetails = useCallback(async (retryCount: number = 0) => {
+  try {
+    const taskResp = JSON.parse(sessionStorage.getItem("taskRes") || "");
+    const res = await fetch(
+      process.env.NEXT_PUBLIC_API_URL + "/api/taskDetail/",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(taskResp),
+      }
+    );
+    if (res.status === 422 && retryCount < 3) {
+      console.warn(
+        `タスク詳細APIが422を返しました。タスク分割APIのみ再実行します。（再試行 ${retryCount + 1} 回目）`
       );
-      if (res.status === 422 && retryCount < 3) {
-        console.warn(
-          `タスク詳細APIが422を返しました。タスク分割APIのみ再実行します。（再試行 ${retryCount + 1} 回目）`
-        );
-        // タスク分割APIのみの再実行
-        await fetchTaskDivisionOnly();
-        // 再度タスク詳細化APIを呼び出す
-        return await fetchTaskDetails(retryCount + 1);
-      }
-      if (!res.ok) {
-        throw new Error("タスク詳細化APIエラー: " + res.statusText);
-      }
-      const data = await res.json();
-      // 詳細付きタスクをセッションストレージに保存（UI の tasks には影響しない）
-      sessionStorage.setItem("detailedTasks", JSON.stringify(data.tasks));
-    } catch (err: any) {
-      console.error("TaskDetail API エラー:", err);
+      // タスク分割APIのみの再実行
+      await fetchTaskDivisionOnly();
+      // 再度タスク詳細化APIを呼び出す
+      return await fetchTaskDetails(retryCount + 1);
     }
-  };
+    if (!res.ok) {
+      throw new Error("タスク詳細化APIエラー: " + res.statusText);
+    }
+    const data:TaskDetail = await res.json();
+    // 詳細付きタスクをセッションストレージに保存（UI の tasks には影響しない）
+    sessionStorage.setItem("detailedTasks", JSON.stringify(data.tasks));
+  } catch (err: unknown) {
+    console.error("TaskDetail API エラー:", err);
+  }
+}, [fetchTaskDivisionOnly]); // fetchTaskDivisionOnly を依存関係に追加
 
-  useEffect(() => {
-    if (tasks.length > 0) {
-      console.log("タスク詳細化APIを呼び出します");
-      fetchTaskDetails();
-    }
-  }, [tasks]);
+useEffect(() => {
+  if (tasks.length > 0) {
+    console.log("タスク詳細化APIを呼び出します");
+    fetchTaskDetails();
+  }
+}, [tasks, fetchTaskDetails]);
 
   // 環境構築ハンズオンAPI呼び出し＆遷移処理
   const handleProceedToEnv = async () => {
@@ -193,7 +199,7 @@ export default function TaskDivisionPage() {
       // envDataは { overall: string, devcontainer: string, frontend: string, backend: string } を想定
       sessionStorage.setItem("envHanson", JSON.stringify(envData));
       router.push("/hackSetUp/envHanson");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       alert("環境構築APIの呼び出しに失敗しました");
     }

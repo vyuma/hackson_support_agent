@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useEffect } from "react";
-import { useDrop, DropTargetMonitor } from "react-dnd";
+import { useDrop } from "react-dnd";
 import type { DragItem } from "../types/dndTypes";
 import type { Task } from "../types/taskTypes";
 import DragTaskCard from "./DragTaskCard";
@@ -30,7 +30,7 @@ const Column: React.FC<ColumnProps> = ({
 
   const [{ isOver }, drop] = useDrop<DragItem, void, { isOver: boolean }>({
     accept: "TASK",
-    drop: (item, monitor: DropTargetMonitor) => {
+    drop: (item) => {
       onDropTask(item.index, assignmentKey);
     },
     collect: (monitor) => ({
