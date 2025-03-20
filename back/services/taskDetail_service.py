@@ -1,6 +1,6 @@
 from langchain.prompts import ChatPromptTemplate
 from langchain.output_parsers import ResponseSchema, StructuredOutputParser
-from base_service import BaseService
+from .base_service import BaseService
 from typing import List, Dict
 import json
 
@@ -41,7 +41,7 @@ class TaskDetailService(BaseService):
         )
 
         # JSON形式の文字列に変換
-        tasks_input = json.dumps(tasks, ensure_ascii=False, indent=2)
+        tasks_input = json.dumps([task.dict() for task in tasks], ensure_ascii=False, indent=2)
         
         chain = prompt_template | self.flash_llm_pro | parser
         result = chain.invoke({"tasks_input": tasks_input})

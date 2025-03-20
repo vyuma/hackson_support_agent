@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import TaskCard from "../../components/TaskCard";
 
 interface Task {
-  taskName: string;
+  task_name: string;
   priority: "Must" | "Should" | "Could";
   content: string;
   // detail は UI には表示せず、API呼び出し結果としてセッションストレージに保存するだけ
