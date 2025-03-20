@@ -42,6 +42,7 @@ class EnvironmentService(BaseService):
         prompt_template = ChatPromptTemplate.from_template(
             template="""
                         以下の情報をもとに、環境構築ハンズオンの説明を生成してください。回答はMarkdown形式で出力してください。
+                        ただし、Markdown形式の文字列がJSON形式の形を壊さないように注意してください。
                         【仕様書】
                         {specification}
                         【ディレクトリ構成】

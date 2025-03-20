@@ -3,7 +3,7 @@
 import React from "react";
 
 interface Task {
-  taskName: string;
+  task_name: string;
   priority: "Must" | "Should" | "Could";
   content: string;
 }
@@ -15,7 +15,7 @@ interface TaskCardProps {
 const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
   return (
     <div className="p-4 border rounded shadow bg-white">
-      <h2 className="text-xl font-bold">{task.taskName}</h2>
+      <h2 className="text-xl font-bold">{task.task_name}</h2>
       <p className="mt-1">
         <span className="font-semibold">優先度:</span> {task.priority}
       </p>
