@@ -82,7 +82,7 @@ export default function HackQA() {
             </p>
           </div>
 
-          <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-8 shadow-2xl border border-purple-300 border-opacity-20">
+          <div className="bg-white dark:bg-gray-800 bg-opacity-20 dark:bg-opacity-30 backdrop-blur-lg rounded-xl p-8 shadow-2xl border border-purple-300 dark:border-purple-400 border-opacity-20 dark:border-opacity-20">
             {loading ? (
               <div className="flex justify-center items-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500"></div>
@@ -90,12 +90,12 @@ export default function HackQA() {
             ) : (
               <>
                 <div className="mb-6">
-                  <h2 className="text-xl font-medium text-gray-700 mb-4">あなたの作りたいもの：</h2>
-                  <p className="text-purple-100 bg-purple-800 bg-opacity-30 p-4 rounded-lg">{dream}</p>
+                  <h2 className="text-xl font-medium text-white dark:text-white mb-4">あなたの作りたいもの：</h2>
+                  <p className="text-white dark:text-white bg-purple-800 bg-opacity-50 dark:bg-opacity-60 p-4 rounded-lg">{dream}</p>
                 </div>
 
                 <div className="mb-8">
-                  <h2 className="text-xl font-medium text-gray-700 mb-4">
+                  <h2 className="text-xl font-medium text-white dark:text-white mb-4">
                     以下の質問に回答してください：
                   </h2>
                   <div className="space-y-4">
@@ -110,7 +110,7 @@ export default function HackQA() {
                         />
                       ))
                     ) : (
-                      <p className="text-white">
+                      <p className="text-white dark:text-white">
                         質問が読み込めませんでした。もう一度お試しください。
                       </p>
                     )}

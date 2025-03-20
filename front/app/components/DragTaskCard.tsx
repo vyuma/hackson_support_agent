@@ -48,15 +48,15 @@ const DragTaskCard: React.FC<DragTaskCardProps> = ({ task, index, onTaskDetail }
         opacity: isDragging ? 0.5 : 1,
         cursor: "move",
       }}
-      className="bg-white border rounded p-2 mb-2 shadow hover:bg-gray-100"
+      className="bg-white dark:bg-gray-800 border dark:border-gray-600 rounded p-2 mb-2 shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition"
     >
-      <h3 className="font-bold">{task.task_name}</h3>
-      <p className="text-sm text-gray-600">
+      <h3 className="font-bold text-gray-900 dark:text-white">{task.task_name}</h3>
+      <p className="text-sm text-gray-600 dark:text-gray-300">
         {task.priority} / {task.assignment ?? "未定"}
       </p>
       <button
         onClick={handleDetailClick}
-        className="mt-2 px-3 py-1 bg-blue-500 text-white rounded"
+        className="mt-2 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded transition"
       >
         詳細
       </button>

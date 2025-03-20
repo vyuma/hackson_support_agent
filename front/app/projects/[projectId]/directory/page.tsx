@@ -71,12 +71,12 @@ export default function DirectoryPage() {
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div className="p-4">
-      <button onClick={() => router.back()} className="px-4 py-2 bg-gray-300 rounded mb-4">
+    <div className="p-4 bg-white dark:bg-gray-900">
+      <button onClick={() => router.back()} className="px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-white rounded mb-4 hover:bg-gray-400 dark:hover:bg-gray-600 transition">
         戻る
       </button>
 
-      <h1 className="text-2xl font-bold mb-4">ディレクトリ表示</h1>
+      <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">ディレクトリ表示</h1>
       <section className="mb-6">
         <MarkdownViewer markdown={directoryStructure} />
       </section>

@@ -85,11 +85,11 @@ export default function SetUpSummaryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-3xl mx-auto bg-white p-8 rounded shadow">
-        <h1 className="text-2xl font-bold mb-4">仕様書の確認と編集</h1>
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
+      <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 p-8 rounded shadow dark:shadow-gray-700">
+        <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">仕様書の確認と編集</h1>
         {loading ? (
-          <div>Loading...</div>
+          <div className="text-gray-700 dark:text-gray-300">Loading...</div>
         ) : (
           <>
             <SummaryEditor initialSummary={summary} onSummaryChange={handleSummaryChange} />

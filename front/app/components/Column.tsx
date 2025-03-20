@@ -47,7 +47,7 @@ const Column: React.FC<ColumnProps> = ({
   return (
     <div
       ref={columnRef}
-      className="bg-gray-200 p-4 rounded min-h-[200px]"
+      className="bg-gray-200 dark:bg-gray-700 p-4 rounded min-h-[200px]"
       style={{ opacity: isOver ? 0.7 : 1 }}
     >
       {isMemberColumn ? (
@@ -56,11 +56,11 @@ const Column: React.FC<ColumnProps> = ({
           type="text"
           value={columnTitle}
           onChange={(e) => onMemberNameChange?.(e.target.value)}
-          className="font-bold mb-2 border p-1 rounded w-full"
+          className="font-bold mb-2 border dark:border-gray-600 p-1 rounded w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
         />
       ) : (
         // 未定/完了コラムはタイトルのまま表示
-        <h2 className="font-bold mb-2">{columnTitle}</h2>
+        <h2 className="font-bold mb-2 text-gray-900 dark:text-white">{columnTitle}</h2>
       )}
 
       {tasks.map((task, idx) => (

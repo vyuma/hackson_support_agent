@@ -97,17 +97,17 @@ export default function TaskDetailPage() {
   if (!task) return <p>タスク情報がありません</p>;
 
   return (
-    <div className="p-4">
-      <button onClick={() => router.back()} className="px-4 py-2 bg-gray-300 rounded mb-4">
+    <div className="p-4 bg-white dark:bg-gray-900">
+      <button onClick={() => router.back()} className="px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-white rounded mb-4 hover:bg-gray-400 dark:hover:bg-gray-600 transition">
         戻る
       </button>
-      <h1 className="text-2xl font-bold mb-2">{task.task_name}</h1>
-      <p className="mb-4">
+      <h1 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">{task.task_name}</h1>
+      <p className="mb-4 text-gray-800 dark:text-gray-200">
         タスクID: {task.task_id} / 優先度: {task.priority} / 担当: {task.assignment || "未定"}
       </p>
-      <h2 className="text-xl font-semibold mb-2">概要:</h2>
-      <p className="mb-2">{task.content}</p>
-      <h2 className="text-xl font-semibold mb-2">詳細 (detail):</h2>
+      <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">概要:</h2>
+      <p className="mb-2 text-gray-800 dark:text-gray-200">{task.content}</p>
+      <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">詳細 (detail):</h2>
       <MarkdownViewer markdown={task.detail || ""} />
       {/* チャットボットコンポーネント */}
       <ChatBot
