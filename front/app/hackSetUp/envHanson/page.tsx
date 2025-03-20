@@ -151,32 +151,32 @@ export default function EnvHandsOnPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-4xl mx-auto bg-white p-8 rounded shadow">
-        <h1 className="text-2xl font-bold mb-4">環境構築ハンズオン</h1>
+<div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
+      <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 p-8 rounded shadow dark:shadow-gray-700">
+        <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">環境構築ハンズオン</h1>
         {loading ? (
-          <p>ロード中...</p>
+          <p className="text-gray-700 dark:text-gray-300">ロード中...</p>
         ) : envData ? (
           <>
             <section className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">全体のハンズオン説明</h2>
+              <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">全体のハンズオン説明</h2>
               <MarkdownViewer markdown={envData.overall} />
             </section>
             <section className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">.devcontainer の設定</h2>
+              <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">.devcontainer の設定</h2>
               <MarkdownViewer markdown={envData.devcontainer} />
             </section>
             <section className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">フロントエンド環境構築</h2>
+              <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">フロントエンド環境構築</h2>
               <MarkdownViewer markdown={envData.frontend} />
             </section>
             <section className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">バックエンド環境構築</h2>
+              <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">バックエンド環境構築</h2>
               <MarkdownViewer markdown={envData.backend} />
             </section>
           </>
         ) : (
-          <p>環境構築情報が見つかりません。</p>
+          <p className="text-gray-800 dark:text-gray-200">環境構築情報が見つかりません。</p>
         )}
       </div>
       <div className="mt-8">
