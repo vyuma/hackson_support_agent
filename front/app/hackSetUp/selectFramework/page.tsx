@@ -80,14 +80,14 @@ export default function SelectFrameworkPage() {
   };
 
   return (
-    <div className="min-h-screen p-8">
-      <h1 className="text-2xl font-bold mb-4">フレームワーク選定</h1>
+    <div className="min-h-screen p-8 bg-white dark:bg-gray-900">
+      <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">フレームワーク選定</h1>
       <div className="mb-4">
-        <label className="mr-4">プラットフォーム選択:</label>
+        <label className="mr-4 text-gray-800 dark:text-gray-200">プラットフォーム選択:</label>
         <select
           value={platform}
           onChange={(e) => setPlatform(e.target.value as "Web" | "Android" | "iOS")}
-          className="p-2 border rounded"
+          className="p-2 border dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
         >
           <option value="Web">Web</option>
           <option value="Android">Android</option>
@@ -96,11 +96,11 @@ export default function SelectFrameworkPage() {
       </div>
       {platform === "Web" ? (
         loading ? (
-          <p>ロード中...</p>
+          <p className="text-gray-700 dark:text-gray-300">ロード中...</p>
         ) : (
           frameworkData && (
             <>
-              <h2 className="text-xl font-semibold mt-4">フロントエンド</h2>
+              <h2 className="text-xl font-semibold mt-4 text-gray-800 dark:text-gray-200">フロントエンド</h2>
               <div className="grid grid-cols-1 gap-4">
                 {frameworkData.frontend.map((fw, idx) => (
                   <FrameworkProposalCard
@@ -111,7 +111,7 @@ export default function SelectFrameworkPage() {
                   />
                 ))}
               </div>
-              <h2 className="text-xl font-semibold mt-8">バックエンド</h2>
+              <h2 className="text-xl font-semibold mt-8 text-gray-800 dark:text-gray-200">バックエンド</h2>
               <div className="grid grid-cols-1 gap-4">
                 {frameworkData.backend.map((fw, idx) => (
                   <FrameworkProposalCard
@@ -128,12 +128,12 @@ export default function SelectFrameworkPage() {
       ) : (
         <div className="mt-4">
           {platform === "Android" && (
-            <p>
+            <p className="text-gray-800 dark:text-gray-200">
               Android 向けの開発では、ネイティブアプリ開発が推奨されるため、Web専用のフレームワーク選定情報は表示しません。
             </p>
           )}
           {platform === "iOS" && (
-            <p>
+            <p className="text-gray-800 dark:text-gray-200">
               iOS 向けの開発では、ネイティブアプリ開発が推奨されるため、Web専用のフレームワーク選定情報は表示しません。
             </p>
           )}
