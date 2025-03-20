@@ -75,13 +75,13 @@ export default function ChatBot({
   };
 
   return (
-    <div className="mt-8 p-4 border rounded bg-gray-50">
-      <h2 className="text-xl font-semibold mb-2">サポートチャット</h2>
+    <div className="mt-8 p-4 border dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-800">
+      <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">サポートチャット</h2>
       {/* チャット履歴 */}
-      <div className="mb-4 h-64 overflow-auto bg-white p-2 border rounded">
+      <div className="mb-4 h-64 overflow-auto bg-white dark:bg-gray-700 p-2 border dark:border-gray-600 rounded">
         {chatHistory.map((msg, idx) => (
           <div key={idx} className="mb-2">
-            <span className="font-bold">
+            <span className="font-bold text-gray-900 dark:text-white">
               {msg.role === "user" ? "ユーザー" : "アシスタント"}:
             </span>
             <MarkdownViewer markdown={msg.content || ""} />
@@ -95,11 +95,11 @@ export default function ChatBot({
           value={userQuestion}
           onChange={(e) => setUserQuestion(e.target.value)}
           placeholder="質問を入力..."
-          className="flex-1 border rounded p-2"
+          className="flex-1 border dark:border-gray-600 rounded p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
         />
         <button
           onClick={handleSend}
-          className="px-4 py-2 bg-blue-600 text-white rounded"
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
         >
           送信
         </button>

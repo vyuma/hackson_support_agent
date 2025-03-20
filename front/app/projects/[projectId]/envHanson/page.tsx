@@ -99,46 +99,46 @@ export default function EnvHansonPage() {
   }
 
   return (
-    <div className="p-4">
-      <button onClick={() => router.back()} className="px-4 py-2 bg-gray-300 rounded mb-4">
+    <div className="p-4 bg-white dark:bg-gray-900">
+      <button onClick={() => router.back()} className="px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-white rounded mb-4 hover:bg-gray-400 dark:hover:bg-gray-600 transition">
         戻る
       </button>
 
-      <h1 className="text-2xl font-bold mb-4">環境構築ハンズオン</h1>
+      <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">環境構築ハンズオン</h1>
 
       {envData ? (
         <>
           {/* 全体のハンズオン */}
           {envData.overall && (
             <section className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">全体のハンズオン</h2>
+              <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">全体のハンズオン</h2>
               <MarkdownViewer markdown={envData.overall} />
             </section>
           )}
           {/* devcontainer */}
           {envData.devcontainer && (
             <section className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">.devcontainer の設定</h2>
+              <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">.devcontainer の設定</h2>
               <MarkdownViewer markdown={envData.devcontainer} />
             </section>
           )}
           {/* フロントエンド */}
           {envData.frontend && (
             <section className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">フロントエンド環境構築</h2>
+              <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">フロントエンド環境構築</h2>
               <MarkdownViewer markdown={envData.frontend} />
             </section>
           )}
           {/* バックエンド */}
           {envData.backend && (
             <section className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">バックエンド環境構築</h2>
+              <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">バックエンド環境構築</h2>
               <MarkdownViewer markdown={envData.backend} />
             </section>
           )}
         </>
       ) : (
-        <p>環境構築情報が見つかりません。</p>
+        <p className="text-gray-800 dark:text-gray-200">環境構築情報が見つかりません。</p>
       )}
 
       {/* タスク詳細は不要なのでダミー文字列を使用 */}
