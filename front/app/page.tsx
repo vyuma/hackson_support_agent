@@ -56,46 +56,46 @@ export default function HomePage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 p-8">
       <form
         onSubmit={handleSubmit}
-        className="bg-white bg-opacity-80 backdrop-blur-md rounded-xl shadow-lg p-8 max-w-md w-full"
+        className="bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-90 backdrop-blur-md rounded-xl shadow-lg p-8 max-w-md w-full"
       >
-        <h1 className="text-2xl font-bold mb-6 text-center">プロジェクト設定</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">プロジェクト設定</h1>
         <div className="mb-4">
-          <label className="block text-gray-700 mb-1">アイデア</label>
+          <label className="block text-gray-700 dark:text-gray-300 mb-1">アイデア</label>
           <input
             type="text"
             value={idea}
             onChange={(e) => setIdea(e.target.value)}
             placeholder="例: 新規SNSアプリを作りたい"
             required
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 mb-1">期間</label>
+          <label className="block text-gray-700 dark:text-gray-300 mb-1">期間</label>
           <input
             type="text"
             value={duration}
             onChange={(e) => setDuration(e.target.value)}
             placeholder="例: 2週間"
             required
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           />
         </div>
         <div className="mb-6">
-          <label className="block text-gray-700 mb-1">人数</label>
+          <label className="block text-gray-700 dark:text-gray-300 mb-1">人数</label>
           <input
             type="number"
             value={numPeople}
             onChange={(e) => setNumPeople(e.target.value)}
             placeholder="例: 3"
             required
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           />
         </div>
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded transition"
         >
           {loading ? "送信中..." : "送信"}
         </button>

@@ -179,22 +179,22 @@ export default function ProjectBoardPage() {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <header className="p-4 bg-gray-800 text-white mb-4">
+      <header className="p-4 bg-gray-800 dark:bg-gray-900 text-white mb-4">
         <h1 className="text-2xl font-bold">プロジェクト: {project.idea}</h1>
         <p>ID: {project.project_id} / 人数: {project.num_people}</p>
         {/* ディレクトリ表示ページに飛ばすボタン */}
         <button
           onClick={() => router.push(`/projects/${projectId}/directory`)}
-          className="px-4 py-2 bg-blue-600 text-white rounded mt-2"
+          className="px-4 py-2 bg-blue-600 text-white rounded mt-2 mr-2 hover:bg-blue-700 transition"
         >ディレクトリ表示</button>
         {/* 環境構築ハンズオン表示ページに飛ばすボタン */}
         <button
           onClick={() => router.push(`/projects/${projectId}/envHanson`)}
-          className="px-4 py-2 bg-blue-600 text-white rounded mt-2"
+          className="px-4 py-2 bg-blue-600 text-white rounded mt-2 hover:bg-blue-700 transition"
         >環境構築ハンズオンに戻る</button>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 bg-gray-100 dark:bg-gray-900">
         {/* 未定Column */}
         <Column
           assignmentKey={UNASSIGNED}
@@ -234,10 +234,10 @@ export default function ProjectBoardPage() {
       </div>
 
       {/* 参加者名をまとめて保存するボタン */}
-      <div className="p-4">
+      <div className="p-4 bg-gray-100 dark:bg-gray-900">
         <button
           onClick={handleSaveMembers}
-          className="px-4 py-2 bg-blue-600 text-white rounded"
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
         >
           参加者名の変更を保存
         </button>
