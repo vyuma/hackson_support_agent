@@ -206,13 +206,13 @@ useEffect(() => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-4xl mx-auto bg-white p-8 rounded shadow">
-        <h1 className="text-2xl font-bold mb-4">タスク分割</h1>
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
+      <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 p-8 rounded shadow dark:shadow-gray-700">
+        <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">タスク分割</h1>
         {loading ? (
-          <p>ロード中...</p>
+          <p className="text-gray-700 dark:text-gray-300">ロード中...</p>
         ) : error ? (
-          <p className="text-red-500">{error}</p>
+          <p className="text-red-500 dark:text-red-400">{error}</p>
         ) : (
           <div className="space-y-4">
             {tasks.map((task, index) => (
