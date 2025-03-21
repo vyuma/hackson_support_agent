@@ -14,7 +14,7 @@ class QandaService(BaseService):
         response_schemas = [
             ResponseSchema(
                 name="Question",
-                description="配列形式の項目リスト。例: {Question:[{Question: string,Anser:string}]}",
+                description="配列形式の項目リスト。例: {Question:[{Question:string,Answer:string}]}",
                 type="array(objects)"
             )
         ]
