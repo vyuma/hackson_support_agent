@@ -80,7 +80,7 @@ export default function SelectFrameworkPage() {
       sessionStorage.setItem("framework",frameworkInfo);
     } else {
       
-      sessionStorage.setItem("framework", nativeInfo);
+      sessionStorage.setItem("framework", platform);
     }
     router.push("/hackSetUp/taskDivision");
   };

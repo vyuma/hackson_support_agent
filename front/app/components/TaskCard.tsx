@@ -77,7 +77,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, isDarkMode = true }) => {
           <h2 className={`text-xl font-bold ${
             isDarkMode ? 'text-cyan-300' : 'text-blue-700'
           }`}>
-            {task.taskName}
+            {task.task_name}
           </h2>
           
           <div className={`inline-flex items-center px-2 py-1 rounded text-sm font-medium ${
