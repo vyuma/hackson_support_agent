@@ -34,7 +34,7 @@ class DirectoryService(BaseService):
             ├── package.json
             └── .gitignore
             ```
-            """,
+        """,
             
         )
         chain = prompt_template | self.flash_llm_pro | StrOutputParser()
