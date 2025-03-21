@@ -31,6 +31,7 @@ class FrameworkService(BaseService):
                 あなたはプロダクト開発のエキスパートです。以下の仕様書の内容に基づいて、固定のフロントエンド候補（React, Vue, Next, Astro）とバックエンド候補（Nest, Flask, FastAPI, Rails, Gin）について、各候補の優先順位とその理由を評価してください。
                 各候補に対して、プロジェクトにおける適合性を考慮し、優先順位（数字が小さいほど高い）を付け、理由を記述してください。
                 回答は以下のフォーマットに従って、JSON 形式で出力してください。
+                ここで日本語で出力してください。
                 {format_instructions}
                 仕様書:
                 {specification}

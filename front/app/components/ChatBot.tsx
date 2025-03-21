@@ -8,6 +8,7 @@ interface ChatBotProps {
   directoryStructure: string;
   framework: string;
   taskDetail: string;
+  isDarkMode: boolean; // 追加
 }
 
 interface ChatMessage {
@@ -20,28 +21,24 @@ export default function ChatBot({
   directoryStructure,
   framework,
   taskDetail,
+  isDarkMode,
 }: ChatBotProps) {
-  // チャット履歴
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
-  // ユーザーが入力中の質問
   const [userQuestion, setUserQuestion] = useState("");
 
-  // 送信処理
   const handleSend = async () => {
     if (!userQuestion) return;
 
-    // まずローカルのチャット履歴を更新 (ユーザーが発言)
     const newHistory: ChatMessage[] = [
       ...chatHistory,
       { role: "user", content: userQuestion },
     ];
     setChatHistory(newHistory);
 
-    // APIに送るリクエストボディ
     const requestBody = {
       specification,
       directory_structure: directoryStructure,
-      chat_history: newHistory.map((msg) => `${msg.role}:${msg.content}`).join("\n"), // シンプルに改行でまとめる等
+      chat_history: newHistory.map((msg) => `${msg.role}:${msg.content}`).join("\n"),
       user_question: userQuestion,
       framework,
       taskDetail,
@@ -56,18 +53,15 @@ export default function ChatBot({
         body: JSON.stringify(requestBody),
       });
       if (!res.ok) {
-        // エラー処理
         const text = await res.text();
         console.error("ChatBot APIエラー:", text);
         return;
       }
       const data = await res.json();
-      // data = { answer: "アシスタントからの回答" } を想定
       const assistantMsg: ChatMessage = {
         role: "assistant",
         content: data.response,
       };
-      // チャット履歴に追加
       setChatHistory((prev) => [...prev, assistantMsg]);
     } catch (err) {
       console.error("チャット送信失敗:", err);
@@ -75,13 +69,41 @@ export default function ChatBot({
   };
 
   return (
-    <div className="mt-8 p-4 border rounded bg-gray-50">
-      <h2 className="text-xl font-semibold mb-2">サポートチャット</h2>
-      {/* チャット履歴 */}
-      <div className="mb-4 h-64 overflow-auto bg-white p-2 border rounded">
+    <div
+      className={`mt-8 p-4 border rounded transition-all ${
+        isDarkMode
+          ? "bg-black border-cyan-500 text-cyan-100"
+          : "bg-gray-50 border-blue-300 text-gray-900"
+      } shadow-lg`}
+    >
+      <h2
+        className={`text-xl font-semibold mb-2 ${
+          isDarkMode ? "text-cyan-400" : "text-blue-600"
+        }`}
+      >
+        サポートチャット
+      </h2>
+
+      <div
+        className={`mb-4 h-64 overflow-auto p-2 rounded border ${
+          isDarkMode
+            ? "bg-[#0f0f0f] border-cyan-700"
+            : "bg-white border-gray-300"
+        }`}
+      >
         {chatHistory.map((msg, idx) => (
-          <div key={idx} className="mb-2">
-            <span className="font-bold">
+          <div key={idx} className="mb-3">
+            <span
+              className={`font-bold ${
+                msg.role === "user"
+                  ? isDarkMode
+                    ? "text-pink-400"
+                    : "text-blue-700"
+                  : isDarkMode
+                  ? "text-green-400"
+                  : "text-gray-800"
+              }`}
+            >
               {msg.role === "user" ? "ユーザー" : "アシスタント"}:
             </span>
             <MarkdownViewer markdown={msg.content || ""} />
@@ -95,11 +117,19 @@ export default function ChatBot({
           value={userQuestion}
           onChange={(e) => setUserQuestion(e.target.value)}
           placeholder="質問を入力..."
-          className="flex-1 border rounded p-2"
+          className={`flex-1 border rounded p-2 outline-none transition-all ${
+            isDarkMode
+              ? "bg-[#1a1a1a] border-cyan-600 text-cyan-100 placeholder-gray-500"
+              : "bg-white border-gray-300 text-black"
+          }`}
         />
         <button
           onClick={handleSend}
-          className="px-4 py-2 bg-blue-600 text-white rounded"
+          className={`px-4 py-2 font-bold rounded transition-all ${
+            isDarkMode
+              ? "bg-gradient-to-r from-pink-500 to-cyan-500 text-black hover:from-pink-400 hover:to-cyan-400"
+              : "bg-blue-600 text-white hover:bg-blue-500"
+          }`}
         >
           送信
         </button>

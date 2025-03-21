@@ -1,65 +1,168 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef } from "react";
 import { useDrag, DragSourceMonitor } from "react-dnd";
-import type { DragItem, DragCollectedProps } from "../types/dndTypes";
+import { Info, ArrowUpRight, Star, Clock, BarChart } from "lucide-react";
+import type { DragItem } from "../types/dndTypes";
 import type { Task } from "../types/taskTypes";
-
-export const ItemTypes = {
-  TASK: "TASK",
-};
 
 interface DragTaskCardProps {
   task: Task;
   index: number;
-  // 詳細ボタン押下時に親コンポーネントへtask_idを通知
   onTaskDetail: (taskId: string) => void;
+  isDarkMode?: boolean;
 }
 
-/** ドラッグ可能なタスクカード */
-const DragTaskCard: React.FC<DragTaskCardProps> = ({ task, index, onTaskDetail }) => {
-  const [{ isDragging }, drag] = useDrag<DragItem, unknown, DragCollectedProps>({
-    type: ItemTypes.TASK,
-    item: { type: ItemTypes.TASK, index },
+const DragTaskCard: React.FC<DragTaskCardProps> = ({ 
+  task, 
+  index, 
+  onTaskDetail,
+  isDarkMode = true
+}) => {
+  const dragRef = useRef<HTMLDivElement>(null);
+  const [{ isDragging }, drag] = useDrag<DragItem, unknown, { isDragging: boolean }>({
+    type: "TASK",
+    item: { type: "TASK", index }, // typeプロパティを追加
     collect: (monitor: DragSourceMonitor) => ({
       isDragging: monitor.isDragging(),
     }),
   });
-
-  // 2) DOM用のrefを独自に定義
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  // 3) useEffectでマウント後にimperativeにdrag(cardRef.current)を呼ぶ
-  useEffect(() => {
-    if (cardRef.current) {
-      drag(cardRef.current);
+  React.useEffect(() => {
+    if (dragRef.current) {
+      drag(dragRef.current);
     }
   }, [drag]);
 
-  // 「詳細」ボタン押下ハンドラ
-  const handleDetailClick = () => {
-    onTaskDetail(task.task_id);
+  // 優先度に基づいて色とアイコンを設定
+  const getPriorityStyles = () => {
+    if (isDarkMode) {
+      switch (task.priority) {
+        case "Must":
+          return {
+            borderColor: "border-red-600",
+            bgColor: "bg-red-900/20",
+            textColor: "text-red-400",
+            icon: <Star size={14} className="text-red-400" />
+          };
+        case "Should":
+          return {
+            borderColor: "border-yellow-600",
+            bgColor: "bg-yellow-900/20",
+            textColor: "text-yellow-400",
+            icon: <Clock size={14} className="text-yellow-400" />
+          };
+        case "Could":
+          return {
+            borderColor: "border-blue-600",
+            bgColor: "bg-blue-900/20",
+            textColor: "text-blue-400",
+            icon: <BarChart size={14} className="text-blue-400" />
+          };
+        default:
+          return {
+            borderColor: "border-gray-600",
+            bgColor: "bg-gray-900/30",
+            textColor: "text-gray-400",
+            icon: null
+          };
+      }
+    } else {
+      switch (task.priority) {
+        case "Must":
+          return {
+            borderColor: "border-red-400",
+            bgColor: "bg-red-50",
+            textColor: "text-red-600",
+            icon: <Star size={14} className="text-red-600" />
+          };
+        case "Should":
+          return {
+            borderColor: "border-yellow-400",
+            bgColor: "bg-yellow-50",
+            textColor: "text-yellow-700",
+            icon: <Clock size={14} className="text-yellow-700" />
+          };
+        case "Could":
+          return {
+            borderColor: "border-blue-400",
+            bgColor: "bg-blue-50",
+            textColor: "text-blue-600",
+            icon: <BarChart size={14} className="text-blue-600" />
+          };
+        default:
+          return {
+            borderColor: "border-gray-300",
+            bgColor: "bg-gray-50",
+            textColor: "text-gray-600",
+            icon: null
+          };
+      }
+    }
   };
+
+  const priorityStyle = getPriorityStyles();
 
   return (
     <div
-      ref={cardRef}
-      style={{
-        opacity: isDragging ? 0.5 : 1,
-        cursor: "move",
-      }}
-      className="bg-white border rounded p-2 mb-2 shadow hover:bg-gray-100"
+      ref={dragRef}
+      className={`rounded-lg shadow-sm border-l-4 transition-all ${priorityStyle.borderColor} ${
+        isDarkMode 
+          ? 'bg-gray-800 shadow-gray-900/40' 
+          : 'bg-white shadow-gray-200'
+      } ${
+        isDragging 
+          ? 'opacity-50 shadow-lg transform rotate-2 scale-105' 
+          : 'opacity-100'
+      }`}
+      style={{ cursor: "grab" }}
     >
-      <h3 className="font-bold">{task.task_name}</h3>
-      <p className="text-sm text-gray-600">
-        {task.priority} / {task.assignment ?? "未定"}
-      </p>
-      <button
-        onClick={handleDetailClick}
-        className="mt-2 px-3 py-1 bg-blue-500 text-white rounded"
-      >
-        詳細
-      </button>
+      <div className="p-3">
+        {/* タスク名とプライオリティ */}
+        <div className="flex justify-between items-start mb-2">
+          <h3 className={`font-bold text-sm ${
+            isDarkMode ? 'text-cyan-300' : 'text-purple-700'
+          }`}>
+            {task.task_name}
+          </h3>
+          
+          <div className={`flex items-center text-xs px-2 py-0.5 rounded ${priorityStyle.bgColor} ${priorityStyle.textColor}`}>
+            {priorityStyle.icon}
+            <span className="ml-1">{task.priority}</span>
+          </div>
+        </div>
+        
+        {/* タスク内容 */}
+        <p className={`text-xs mb-3 ${
+          isDarkMode ? 'text-gray-300' : 'text-gray-600'
+        }`}>
+          {task.content.length > 120
+            ? `${task.content.substring(0, 120)}...`
+            : task.content}
+        </p>
+        
+        {/* アクションボタン */}
+        <div className="flex justify-end">
+          <button
+            onClick={() => onTaskDetail(task.task_id)}
+            className={`text-xs px-2 py-1 rounded flex items-center transition-all ${
+              isDarkMode
+                ? 'bg-gray-700 hover:bg-gray-600 text-cyan-400'
+                : 'bg-gray-100 hover:bg-gray-200 text-purple-600'
+            }`}
+          >
+            <Info size={12} className="mr-1" />
+            詳細
+            <ArrowUpRight size={12} className="ml-1" />
+          </button>
+        </div>
+      </div>
+      
+      {/* 下部デコレーション */}
+      <div className={`h-0.5 rounded-b-lg ${
+        isDarkMode
+          ? 'bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent'
+          : 'bg-gradient-to-r from-transparent via-purple-500/30 to-transparent'
+      }`}></div>
     </div>
   );
 };
