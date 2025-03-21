@@ -14,11 +14,13 @@ export default function HackQA() {
   const [answers, setAnswers] = useState<Answers>({});
   const [loading, setLoading] = useState(true);
   const [processingNext, setProcessingNext] = useState(false);
+  const [dreamAnalysis, setDreamAnalysis] = useState<string | null>(null);
   const [darkMode, setDarkMode] = useState(true);
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedDream = sessionStorage.getItem("dream");
@@ -109,8 +111,9 @@ export default function HackQA() {
       <div className="fixed top-0 bottom-0 right-0 w-1 z-20">
         <div className={`w-full ${darkMode ? 'bg-pink-500' : 'bg-blue-500'} animate-pulse`}></div>
       </div>
+      {/* mainのカラーを透明にする */}
       
-      <main className="container mx-auto px-4 py-16 relative z-10">
+      <main className="relative z-10">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
@@ -167,7 +170,6 @@ export default function HackQA() {
                     <Cpu size={18} className={`mr-2 ${
                       darkMode ? 'text-pink-500' : 'text-blue-600'
                     }`} />
-
                     以下の質問に回答してください：
                   </h2>
                   <div className="space-y-6">
@@ -186,7 +188,7 @@ export default function HackQA() {
                           <textarea
                             value={answers[index] || ""}
                             onChange={(e) => handleAnswerChange(index, e.target.value)}
-                            placeholder={question.Answer || "ここに回答を入力してください"}
+                            placeholder="回答を入力してください..."
                             rows={3}
                             className={`w-full p-3 rounded border-l-4 focus:outline-none transition-all ${
                               darkMode 
@@ -198,7 +200,6 @@ export default function HackQA() {
                       ))
                     ) : (
                       <p className={darkMode ? 'text-gray-300' : 'text-gray-700'}>
-
                         質問が読み込めませんでした。もう一度お試しください。
                       </p>
                     )}
