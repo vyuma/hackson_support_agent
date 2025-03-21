@@ -83,7 +83,8 @@ export default function EnvHansonPage() {
         setFramework(data.selected_framework || "");
         setDirectoryStructure(data.directory_info || "");
       } catch (err: unknown) {
-        setError(err.message || "エラーが発生しました");
+        console.error("プロジェクト情報取得エラー:", err);
+        setError("プロジェクト情報の取得に失敗しました");
       } finally {
         setLoading(false);
       }

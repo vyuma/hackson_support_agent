@@ -121,7 +121,7 @@ export default function TaskDivisionPage() {
         await fetchTaskDivision();
       } catch (err: unknown) {
         console.error(err);
-        setError(err.message || "エラーが発生しました");
+        setError("タスク分割APIの呼び出しに失敗しました");
       } finally {
         setLoading(false);
       }
