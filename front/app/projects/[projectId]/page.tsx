@@ -395,5 +395,6 @@ export default function ProjectBoardPage() {
         </div>
       </footer>
     </div>
+
   );
 }

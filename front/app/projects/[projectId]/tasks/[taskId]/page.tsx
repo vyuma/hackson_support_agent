@@ -353,6 +353,7 @@ export default function TaskDetailPage() {
           <span className={darkMode ? 'text-pink-500' : 'text-blue-600'}>DREAM</span> v2.4.7
         </div>
       </footer>
+
     </div>
   );
 }

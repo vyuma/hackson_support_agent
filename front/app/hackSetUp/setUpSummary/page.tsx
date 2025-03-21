@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import SummaryEditor from "../../components/SummaryEditor";
 import { Sun, Moon, FileText, Save, ChevronRight, Info } from "lucide-react";
 
+
 interface QAItem {
   Question: string;
   Answer: string;
@@ -229,6 +230,7 @@ export default function SetUpSummaryPage() {
           <span className={darkMode ? 'text-cyan-400' : 'text-purple-600'}>CYBER</span>//
           <span className={darkMode ? 'text-pink-500' : 'text-blue-600'}>DREAM</span> v2.4.7
         </div>
+
       </div>
     </div>
   );

@@ -104,6 +104,7 @@ export default function ChatBot({
                   : "text-gray-800"
               }`}
             >
+
               {msg.role === "user" ? "ユーザー" : "アシスタント"}:
             </span>
             <MarkdownViewer markdown={msg.content || ""} />
@@ -130,6 +131,7 @@ export default function ChatBot({
               ? "bg-gradient-to-r from-pink-500 to-cyan-500 text-black hover:from-pink-400 hover:to-cyan-400"
               : "bg-blue-600 text-white hover:bg-blue-500"
           }`}
+
         >
           送信
         </button>

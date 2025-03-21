@@ -14,7 +14,7 @@ class QandaService(BaseService):
         response_schemas = [
             ResponseSchema(
                 name="Question",
-                description="配列形式の項目リスト。例: {Question:[{Question: string,Anser:string}]}",
+                description="配列形式の項目リスト。例: {Question:[{Question:string,Answer:string}]}",
                 type="array(objects)"
             )
         ]
@@ -26,9 +26,9 @@ class QandaService(BaseService):
             ...
             アイデア、期間、人数:{yume_prompt}
             これに基づいたアイデアを仕様に落とし込む上での質問をしてください。
-            アイデアが具体的であれば3から5個で、抽象的であればそれ以上生成してください。
+            アイデアが仕様に触れるような具体的な内容であれば3から5個で、抽象的であればそれ以上生成してください。
             ただし、フレームワークの記述は不要です。なんの言語が書けるかなどユーザーのコーディング力には触れても問題ないです。
-            また、解答例をAnswer部分に一緒に送るようにしてください。
+            また、回答例をAnswerの欄に含めてください。Questionの欄には解答例を書かないでください。
             回答は以下のフォーマットを参照してください。
             {format_instructions}
             """,

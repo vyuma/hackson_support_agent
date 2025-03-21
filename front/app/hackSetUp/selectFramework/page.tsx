@@ -41,7 +41,7 @@ export default function SelectFrameworkPage() {
         router.push("/");
       }
     }
-  }, []);
+  }, [router]);
 
   // specification が取得できたら、API 呼び出しは一度だけ実施（frameworkData が未取得の場合）
   useEffect(() => {
@@ -79,11 +79,6 @@ export default function SelectFrameworkPage() {
                             `;
       sessionStorage.setItem("framework",frameworkInfo);
     } else {
-      // Android / iOS の場合は簡単な説明を追記
-      const nativeInfo =
-        platform === "Android"
-          ? "【ネイティブ選定】Android向けの開発が推奨されます。"
-          : "【ネイティブ選定】iOS向けの開発が推奨されます。";
       
       sessionStorage.setItem("framework", nativeInfo);
     }
@@ -355,6 +350,7 @@ export default function SelectFrameworkPage() {
                   : "iOS 向けの開発では、Swift/Objective-C を使用したネイティブアプリ開発が推奨されます。クロスプラットフォーム開発として Flutter や React Native も検討できますが、パフォーマンスとネイティブ機能へのアクセスを考慮するとネイティブ開発が最適です。"}
               </p>
             </div>
+
           )}
           
           <div className="mt-8 flex justify-end">

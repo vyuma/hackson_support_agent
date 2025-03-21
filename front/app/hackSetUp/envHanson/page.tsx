@@ -25,6 +25,7 @@ type requestBodyType = {
   envHanson: string;
   };
 
+
 export default function EnvHandsOnPage() {
   const router = useRouter();
   const [envData, setEnvData] = useState<EnvHandsOn | null>(null);
@@ -37,6 +38,7 @@ export default function EnvHandsOnPage() {
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
+
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -116,6 +118,7 @@ export default function EnvHandsOnPage() {
       return;
     }
 
+
     // detailedTasks を配列にパース
     const detailedTasksArray:Task[]  = JSON.parse(detailedTasks);
 
@@ -149,7 +152,6 @@ export default function EnvHandsOnPage() {
 
     try {
       const projectId = await postToDB(requestBody);
-      setDbPosted(true);
       router.push(`/projects/${projectId}`);
     } catch (err: unknown) {
       console.error(err);
@@ -197,6 +199,7 @@ export default function EnvHandsOnPage() {
       {/* 光るエッジライン */}
       <div className="fixed bottom-0 left-0 right-0 h-1 z-20">
         <div className={`h-full ${darkMode ? 'bg-cyan-500' : 'bg-purple-500'} animate-pulse`}></div>
+
       </div>
       <div className="fixed top-0 bottom-0 right-0 w-1 z-20">
         <div className={`w-full ${darkMode ? 'bg-pink-500' : 'bg-blue-500'} animate-pulse`}></div>

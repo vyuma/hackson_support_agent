@@ -32,6 +32,7 @@ class FrameworkService(BaseService):
                 各候補に対して、プロジェクトにおける適合性を考慮し、優先順位（数字が小さいほど高い）を付け、理由を記述してください。
                 回答は以下のフォーマットに従って、JSON 形式で出力してください。
                 ここで日本語で出力してください。
+
                 {format_instructions}
                 仕様書:
                 {specification}

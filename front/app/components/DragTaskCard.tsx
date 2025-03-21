@@ -163,6 +163,7 @@ const DragTaskCard: React.FC<DragTaskCardProps> = ({
           ? 'bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent'
           : 'bg-gradient-to-r from-transparent via-purple-500/30 to-transparent'
       }`}></div>
+
     </div>
   );
 };

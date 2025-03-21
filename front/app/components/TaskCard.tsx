@@ -4,7 +4,7 @@ import React from "react";
 import { Check, Star, Clock, BarChart } from "lucide-react";
 
 interface Task {
-  taskName: string;
+  task_name: string;
   priority: "Must" | "Should" | "Could";
   content: string;
 }

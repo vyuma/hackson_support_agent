@@ -129,6 +129,7 @@ export default function HomePage() {
             <Clock size={16} className={`mr-2 ${darkMode ? 'text-pink-500' : 'text-blue-600'}`} />
             <span>期間</span>
           </label>
+
           <input
             type="text"
             value={duration}
@@ -154,6 +155,7 @@ export default function HomePage() {
             onChange={(e) => setNumPeople(e.target.value)}
             placeholder="例: 3"
             required
+
             className={`w-full p-3 rounded border-l-4 focus:outline-none transition-all ${
               darkMode 
                 ? 'bg-gray-700 text-gray-100 border-pink-500 focus:ring-1 focus:ring-cyan-400' 
@@ -165,6 +167,7 @@ export default function HomePage() {
         <button
           type="submit"
           disabled={loading}
+
           className={`w-full flex items-center justify-center font-bold py-3 px-6 rounded transition-all ${
             darkMode 
               ? 'bg-cyan-500 hover:bg-cyan-600 text-gray-900' 

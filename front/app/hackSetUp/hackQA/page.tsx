@@ -19,7 +19,6 @@ export default function HackQA() {
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
-
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedDream = sessionStorage.getItem("dream");
@@ -168,6 +167,7 @@ export default function HackQA() {
                     <Cpu size={18} className={`mr-2 ${
                       darkMode ? 'text-pink-500' : 'text-blue-600'
                     }`} />
+
                     以下の質問に回答してください：
                   </h2>
                   <div className="space-y-6">
@@ -198,6 +198,7 @@ export default function HackQA() {
                       ))
                     ) : (
                       <p className={darkMode ? 'text-gray-300' : 'text-gray-700'}>
+
                         質問が読み込めませんでした。もう一度お試しください。
                       </p>
                     )}
