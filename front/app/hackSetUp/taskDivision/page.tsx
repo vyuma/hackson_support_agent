@@ -119,7 +119,7 @@ export default function TaskDivisionPage() {
     const fetchDirectoryAndTasks = async () => {
       try {
         await fetchTaskDivision();
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error(err);
         setError(err.message || "エラーが発生しました");
       } finally {
@@ -157,7 +157,7 @@ export default function TaskDivisionPage() {
       const data = await res.json();
       // 詳細付きタスクをセッションストレージに保存（UI の tasks には影響しない）
       sessionStorage.setItem("detailedTasks", JSON.stringify(data.tasks));
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("TaskDetail API エラー:", err);
     }
   };
@@ -200,7 +200,7 @@ export default function TaskDivisionPage() {
       // envDataは { overall: string, devcontainer: string, frontend: string, backend: string } を想定
       sessionStorage.setItem("envHanson", JSON.stringify(envData));
       router.push("/hackSetUp/envHanson");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       alert("環境構築APIの呼び出しに失敗しました");
     }

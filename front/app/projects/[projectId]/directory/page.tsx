@@ -57,8 +57,9 @@ export default function DirectoryPage() {
         setSpecification(data.specification || "");
         // フレームワーク
         setFramework(data.selected_framework || "");
-      } catch (err: any) {
-        setError(err.message || "エラーが発生しました");
+      } catch (err: unknown) {
+        console.error("プロジェクト情報取得エラー:", err);
+        setError("プロジェクト情報の取得に失敗しました");
       } finally {
         setLoading(false);
       }
