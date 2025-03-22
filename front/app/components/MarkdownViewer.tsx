@@ -365,7 +365,7 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ markdown, isDarkMode = 
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          code({node, className, children, ...props}) {
+          code({ className, children, ...props}) {
             const match = /language-(\w+)/.exec(className || '');
             const isInlineCode = !match;
             
@@ -385,15 +385,15 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ markdown, isDarkMode = 
             );
           },
           // リンクは新しいタブで開く
-          a: ({node, ...props}) => <a target="_blank" rel="noopener noreferrer" {...props} />,
+          a: ({ ...props}) => <a target="_blank" rel="noopener noreferrer" {...props} />,
           // テーブルにレスポンシブラッパーを追加
-          table: ({node, ...props}) => (
+          table: ({ ...props}) => (
             <div className="overflow-x-auto">
               <table {...props} />
             </div>
           ),
           // 画像にローディングレイジー設定
-          img: ({node, ...props}) => <img loading="lazy" {...props} />
+          img: ({ ...props}) => <img loading="lazy" {...props} />
         }}
       >
         {markdown}
@@ -406,7 +406,6 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ markdown, isDarkMode = 
           : 'border-gray-200 text-gray-500'
       } text-xs`}>
         <span className={isDarkMode ? 'text-cyan-400' : 'text-purple-600'}>CYBER</span>
-        <span className={isDarkMode ? 'text-gray-500' : 'text-gray-400'}>//</span>
         <span className={isDarkMode ? 'text-pink-500' : 'text-blue-600'}>DREAM</span>
         <span> | ドキュメント生成システム v2.4.7</span>
       </div>
