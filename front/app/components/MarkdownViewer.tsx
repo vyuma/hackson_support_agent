@@ -375,13 +375,14 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ markdown, isDarkMode = 
               </code>
             ) : (
               <SyntaxHighlighter
-                style={isDarkMode ? atomDark : coy}
-                language={match[1]}
-                PreTag="div"
-                {...props}
-              >
-                {String(children).replace(/\n$/, '')}
-              </SyntaxHighlighter>
+              // @ts-ignore または @ts-expect-error を使用して型エラーを無視
+              style={isDarkMode ? atomDark : coy}
+              language={match && match[1] ? match[1] : ''}
+              PreTag="div"
+              {...props}
+            >
+              {String(children).replace(/\n$/, '')}
+            </SyntaxHighlighter>
             );
           },
           // リンクは新しいタブで開く
