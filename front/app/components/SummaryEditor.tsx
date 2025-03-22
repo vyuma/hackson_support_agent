@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Code, Terminal, ArrowDown, ArrowUp, Maximize, Minimize } from "lucide-react";
+import { Code, Terminal } from "lucide-react";
 
 interface SummaryEditorProps {
   initialSummary: string;
@@ -23,7 +23,7 @@ const SummaryEditor: React.FC<SummaryEditorProps> = ({ initialSummary, onSummary
     setMarkdown(newMarkdown);
     // 行数を更新
     setLineCount(newMarkdown.split('\n').length);
-    onSummaryChange && onSummaryChange(newMarkdown);
+    onSummaryChange?.(newMarkdown);
   };
 
   const toggleExpand = (section: 'editor' | 'preview') => {

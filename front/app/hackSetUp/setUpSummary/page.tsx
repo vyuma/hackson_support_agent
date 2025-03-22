@@ -227,7 +227,8 @@ export default function SetUpSummaryPage() {
         </div>
         
         <div className={`text-xs text-center mt-4 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-          <span className={darkMode ? 'text-cyan-400' : 'text-purple-600'}>CYBER</span>//
+          <span className={darkMode ? 'text-cyan-400' : 'text-purple-600'}>CYBER</span>
+          <span className={darkMode ? 'text-gray-700' : 'text-gray-400'}>//</span>
           <span className={darkMode ? 'text-pink-500' : 'text-blue-600'}>DREAM</span> v2.4.7
         </div>
 

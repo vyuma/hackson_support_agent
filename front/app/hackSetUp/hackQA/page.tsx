@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import AnswerText, { Question } from "../../components/AnswerText";
-import { Zap, ChevronRight, Terminal, Database, Cpu } from "lucide-react";
+import { Question } from "../../components/AnswerText";
+import {  ChevronRight, Terminal, Database, Cpu } from "lucide-react";
 
 type Answers = { [key: number]: string };
 
@@ -13,8 +13,7 @@ export default function HackQA() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<Answers>({});
   const [loading, setLoading] = useState(true);
-  const [processingNext, setProcessingNext] = useState(false);
-  const [dreamAnalysis, setDreamAnalysis] = useState<string | null>(null);
+  const processingNext=false
   const [darkMode, setDarkMode] = useState(true);
 
   const toggleDarkMode = () => {

@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import FrameworkProposalCard from "../../components/FrameworkProposalCard";
 import { Code, Server, Monitor, ChevronRight, Smartphone, Sun, Moon } from "lucide-react";
 
 type FrameworkProposal = {
@@ -369,7 +368,8 @@ export default function SelectFrameworkPage() {
         </div>
         
         <div className={`text-xs text-center mt-4 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-          <span className={darkMode ? 'text-cyan-400' : 'text-purple-600'}>CYBER</span>//
+          <span className={darkMode ? 'text-cyan-400' : 'text-purple-600'}>CYBER</span>
+          <span className={darkMode ? 'text-gray-700' : 'text-gray-400'}>//</span>
           <span className={darkMode ? 'text-pink-500' : 'text-blue-600'}>DREAM</span> v2.4.7
         </div>
       </div>

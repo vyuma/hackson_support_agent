@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useEffect } from "react";
-import { useDrop, DropTargetMonitor } from "react-dnd";
+import { useDrop } from "react-dnd";
 import { CheckSquare, ListTodo, UserCheck } from "lucide-react";
 import type { DragItem } from "../types/dndTypes";
 import type { Task } from "../types/taskTypes";

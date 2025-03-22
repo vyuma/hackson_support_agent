@@ -30,7 +30,6 @@ export default function EnvHandsOnPage() {
   const router = useRouter();
   const [envData, setEnvData] = useState<EnvHandsOn | null>(null);
   const [loading, setLoading] = useState(true);
-  const [dbPosted, setDbPosted] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("overall");
   const [darkMode, setDarkMode] = useState(true);
   const [processingStart, setProcessingStart] = useState(false);
@@ -380,7 +379,8 @@ export default function EnvHandsOnPage() {
         </div>
         
         <div className={`text-xs text-center mt-4 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-          <span className={darkMode ? 'text-cyan-400' : 'text-purple-600'}>CYBER</span>//
+          <span className={darkMode ? 'text-cyan-400' : 'text-purple-600'}>CYBER</span>
+          <span className={darkMode ? 'text-gray-700' : 'text-gray-400'}>//</span>
           <span className={darkMode ? 'text-pink-500' : 'text-blue-600'}>DREAM</span> v2.4.7
         </div>
       </div>

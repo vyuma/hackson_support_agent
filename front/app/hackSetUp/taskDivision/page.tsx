@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef} from "react";
 import { useRouter } from "next/navigation";
 import TaskCard from "../../components/TaskCard";
 import { Sun, Moon, CheckCircle, AlertTriangle, List, ArrowRight } from "lucide-react";
@@ -13,10 +13,6 @@ interface Task {
   detail?: string;
 }
 
-
-type TaskDetail = {
-  tasks: Task[];
-}
 
 interface DirectoryResponse {
   directory_structure: string;
@@ -90,32 +86,6 @@ export default function TaskDivisionPage() {
     setTasks(tasksData.tasks);
   };
 
-  // ディレクトリ作成APIは呼び出さず、タスク分割APIのみを呼び出す関数
-  const fetchTaskDivisionOnly = async () => {
-    if (typeof window === "undefined") return;
-    const specification = sessionStorage.getItem("specification");
-    const framework = sessionStorage.getItem("framework");
-    const directory = sessionStorage.getItem("directory");
-    if (!specification || !framework || !directory) {
-      setError("必要なデータ（仕様書、フレームワーク情報、ディレクトリ）が見つかりません。");
-      setLoading(false);
-      return;
-    }
-    const tasksRes = await fetch(
-      process.env.NEXT_PUBLIC_API_URL + "/api/get_object_and_tasks/",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ specification, directory, framework }),
-      }
-    );
-    if (!tasksRes.ok) {
-      throw new Error("タスク分割APIエラー: " + tasksRes.statusText);
-    }
-    const tasksData: TaskResponse = await tasksRes.json();
-    sessionStorage.setItem("taskRes", JSON.stringify(tasksData));
-    setTasks(tasksData.tasks);
-  };
 
   useEffect(() => {
     if (hasFetchedRef.current) return;
@@ -318,7 +288,8 @@ export default function TaskDivisionPage() {
         </div>
         
         <div className={`text-xs text-center mt-4 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-          <span className={darkMode ? 'text-cyan-400' : 'text-purple-600'}>CYBER</span>//
+          <span className={darkMode ? 'text-cyan-400' : 'text-purple-600'}>CYBER</span>
+          <span className={darkMode ? 'text-gray-700' : 'text-gray-400'}>//</span>
           <span className={darkMode ? 'text-pink-500' : 'text-blue-600'}>DREAM</span> v2.4.7
         </div>
       </div>

@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { Sun, Moon, Layout, FolderTree, Terminal, Save, AlertTriangle } from "lucide-react";
+import { Sun, Moon, FolderTree, Terminal, Save, AlertTriangle } from "lucide-react";
 
 import type { Task, ProjectData } from "../../types/taskTypes";
 import Column from "../../components/Column";
@@ -389,8 +389,9 @@ export default function ProjectBoardPage() {
       
       {/* フッター */}
       <footer className={`p-4 text-center ${darkMode ? 'text-gray-500' : 'text-gray-600'} text-xs relative z-10`}>
-        <div className="container mx-auto">
-          <span className={darkMode ? 'text-cyan-400' : 'text-purple-600'}>CYBER</span>//
+      <div className={`text-xs text-center mt-4 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+          <span className={darkMode ? 'text-cyan-400' : 'text-purple-600'}>CYBER</span>
+          <span className={darkMode ? 'text-gray-700' : 'text-gray-400'}>//</span>
           <span className={darkMode ? 'text-pink-500' : 'text-blue-600'}>DREAM</span> v2.4.7
         </div>
       </footer>
