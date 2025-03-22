@@ -365,7 +365,7 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ markdown, isDarkMode = 
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          code({ className, children, ...props}) {
+          code({className, children, ...props}) {
             const match = /language-(\w+)/.exec(className || '');
             const isInlineCode = !match;
             
@@ -375,26 +375,45 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ markdown, isDarkMode = 
               </code>
             ) : (
               <SyntaxHighlighter
-              // @ts-ignore または @ts-expect-error を使用して型エラーを無視
-              style={isDarkMode ? atomDark : coy}
-              language={match && match[1] ? match[1] : ''}
-              PreTag="div"
-              {...props}
-            >
-              {String(children).replace(/\n$/, '')}
-            </SyntaxHighlighter>
+                // @ts-expect-error - スタイルの型の互換性の問題
+                style={isDarkMode ? atomDark : coy}
+                language={match && match[1] ? match[1] : ''}
+                PreTag="div"
+                {...props}
+              >
+                {String(children).replace(/\n$/, '')}
+              </SyntaxHighlighter>
             );
           },
           // リンクは新しいタブで開く
-          a: ({ ...props}) => <a target="_blank" rel="noopener noreferrer" {...props} />,
+          a: ({...props}) => <a target="_blank" rel="noopener noreferrer" {...props} />,
           // テーブルにレスポンシブラッパーを追加
-          table: ({ ...props}) => (
+          table: ({...props}) => (
             <div className="overflow-x-auto">
               <table {...props} />
             </div>
           ),
-          // 画像にローディングレイジー設定
-          img: ({ ...props}) => <img loading="lazy" {...props} />
+          // 画像にはNext.jsのImageコンポーネントを使用
+          img: ({src, alt, ...props}) => {
+            // 注意: Next.jsのImageコンポーネントは幅と高さが必要です
+            // 実際の実装では、これらの値を動的に取得するか、
+            // 適切なサイズを指定する必要があります
+            if (src) {
+              return (
+                <div className="relative w-full h-auto">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img 
+                    src={src} 
+                    alt={alt || "Markdown content image"} 
+                    loading="lazy" 
+                    className="max-w-full h-auto" 
+                    {...props} 
+                  />
+                </div>
+              );
+            }
+            return null;
+          }
         }}
       >
         {markdown}
@@ -407,6 +426,7 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ markdown, isDarkMode = 
           : 'border-gray-200 text-gray-500'
       } text-xs`}>
         <span className={isDarkMode ? 'text-cyan-400' : 'text-purple-600'}>CYBER</span>
+        <span className={isDarkMode ? 'text-gray-500' : 'text-gray-400'}>//</span>
         <span className={isDarkMode ? 'text-pink-500' : 'text-blue-600'}>DREAM</span>
         <span> | ドキュメント生成システム v2.4.7</span>
       </div>
