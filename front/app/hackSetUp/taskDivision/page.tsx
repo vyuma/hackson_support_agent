@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef} from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import TaskCard from "../../components/TaskCard";
 import { Sun, Moon, CheckCircle, AlertTriangle, List, ArrowRight } from "lucide-react";
@@ -13,6 +13,9 @@ interface Task {
   detail?: string;
 }
 
+interface TaskDetail {
+  tasks: Task[];
+}
 
 interface DirectoryResponse {
   directory_structure: string;
@@ -86,6 +89,32 @@ export default function TaskDivisionPage() {
     setTasks(tasksData.tasks);
   };
 
+  // ディレクトリ作成APIは呼び出さず、タスク分割APIのみを呼び出す関数
+  const fetchTaskDivisionOnly = async () => {
+    if (typeof window === "undefined") return;
+    const specification = sessionStorage.getItem("specification");
+    const framework = sessionStorage.getItem("framework");
+    const directory = sessionStorage.getItem("directory");
+    if (!specification || !framework || !directory) {
+      setError("必要なデータ（仕様書、フレームワーク情報、ディレクトリ）が見つかりません。");
+      setLoading(false);
+      return;
+    }
+    const tasksRes = await fetch(
+      process.env.NEXT_PUBLIC_API_URL + "/api/get_object_and_tasks/",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ specification, directory, framework }),
+      }
+    );
+    if (!tasksRes.ok) {
+      throw new Error("タスク分割APIエラー: " + tasksRes.statusText);
+    }
+    const tasksData: TaskResponse = await tasksRes.json();
+    sessionStorage.setItem("taskRes", JSON.stringify(tasksData));
+    setTasks(tasksData.tasks);
+  };
 
   useEffect(() => {
     if (hasFetchedRef.current) return;
@@ -96,7 +125,9 @@ export default function TaskDivisionPage() {
         await fetchTaskDivision();
       } catch (err: unknown) {
         console.error(err);
-        setError("タスク分割APIの呼び出しに失敗しました");
+        const errorMessage = err instanceof Error ? err.message : "エラーが発生しました";
+        setError(errorMessage);
+
       } finally {
         setLoading(false);
       }
@@ -105,7 +136,43 @@ export default function TaskDivisionPage() {
     fetchDirectoryAndTasks();
   }, []);
 // タスク詳細APIの呼び出し（422の場合、タスク分割APIのみ再実行）
+const fetchTaskDetails = useCallback(async (retryCount: number = 0) => {
+  try {
+    const taskResp = JSON.parse(sessionStorage.getItem("taskRes") || "");
+    const res = await fetch(
+      process.env.NEXT_PUBLIC_API_URL + "/api/taskDetail/",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(taskResp),
+      }
+    );
+    if (res.status === 422 && retryCount < 3) {
+      console.warn(
+        `タスク詳細APIが422を返しました。タスク分割APIのみ再実行します。（再試行 ${retryCount + 1} 回目）`
+      );
+      // タスク分割APIのみの再実行
+      await fetchTaskDivisionOnly();
+      // 再度タスク詳細化APIを呼び出す
+      return await fetchTaskDetails(retryCount + 1);
+    }
+    if (!res.ok) {
+      throw new Error("タスク詳細化APIエラー: " + res.statusText);
+    }
+    const data:TaskDetail = await res.json();
+    // 詳細付きタスクをセッションストレージに保存（UI の tasks には影響しない）
+    sessionStorage.setItem("detailedTasks", JSON.stringify(data.tasks));
+  } catch (err: unknown) {
+    console.error("TaskDetail API エラー:", err);
+  }
+}, [fetchTaskDivisionOnly]); // fetchTaskDivisionOnly を依存関係に追加
 
+useEffect(() => {
+  if (tasks.length > 0) {
+    console.log("タスク詳細化APIを呼び出します");
+    fetchTaskDetails();
+  }
+}, [tasks, fetchTaskDetails]);
 
   // 環境構築ハンズオンAPI呼び出し＆遷移処理
   const handleProceedToEnv = async () => {
@@ -143,6 +210,7 @@ export default function TaskDivisionPage() {
       alert("環境構築APIの呼び出しに失敗しました");
     }
   };
+
 
   return (
     <div className={`min-h-screen font-mono transition-all duration-500 ${
