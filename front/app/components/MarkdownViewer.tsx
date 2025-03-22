@@ -3,6 +3,9 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark, coy } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+//  @types/react-syntax-highlighterのtypeをインポート
+import type { SyntaxHighlighterProps } from 'react-syntax-highlighter';
+
 
 interface MarkdownViewerProps {
   markdown: string;
@@ -426,7 +429,6 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ markdown, isDarkMode = 
           : 'border-gray-200 text-gray-500'
       } text-xs`}>
         <span className={isDarkMode ? 'text-cyan-400' : 'text-purple-600'}>CYBER</span>
-        <span className={isDarkMode ? 'text-gray-500' : 'text-gray-400'}>//</span>
         <span className={isDarkMode ? 'text-pink-500' : 'text-blue-600'}>DREAM</span>
         <span> | ドキュメント生成システム v2.4.7</span>
       </div>
