@@ -27,8 +27,11 @@ export default function HomePage() {
     sessionStorage.setItem("numPeople", numPeople);
     
     try {
-      // API呼び出し（バックエンドの /api/yume_question にPOST）
-      const response = await fetch(process.env.NEXT_PUBLIC_API_URL + "/api/yume_question/", {
+      // 環境変数の代わりに明示的な URL を使用
+      // ※実際のバックエンドの URL に変更してください
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      
+      const response = await fetch(`${apiUrl}/api/yume_question/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,6 +39,11 @@ export default function HomePage() {
         // バックエンドの Pydantic モデルに合わせ、キーは "Prompt"
         body: JSON.stringify({ Prompt: promptText }),
       });
+      
+      if (!response.ok) {
+        throw new Error(`API エラー: ${response.status} ${response.statusText}`);
+      }
+      
       console.log("API response:", response);
       const data: { result: { Question: string } } = await response.json();
   
@@ -53,11 +61,12 @@ export default function HomePage() {
       router.push("/hackSetUp/hackQA");
     } catch (error) {
       console.error("API呼び出しエラー:", error);
+      // エラーメッセージをユーザーに表示することも検討
+      // setErrorMessage("API 呼び出し中にエラーが発生しました。もう一度お試しください。");
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <div className={`min-h-screen font-mono transition-all duration-500 flex items-center justify-center ${darkMode ? 'bg-gray-900' : 'bg-gray-100'} relative overflow-hidden`}>
       {/* Animated background grid */}
