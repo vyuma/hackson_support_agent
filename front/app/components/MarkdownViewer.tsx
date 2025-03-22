@@ -3,8 +3,6 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark, coy } from 'react-syntax-highlighter/dist/cjs/styles/prism';
-//  @types/react-syntax-highlighterのtypeをインポート
-import type { SyntaxHighlighterProps } from 'react-syntax-highlighter';
 
 
 interface MarkdownViewerProps {
