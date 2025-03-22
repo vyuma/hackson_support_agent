@@ -54,7 +54,7 @@ class EnvironmentService(BaseService):
                         2. devcontainer: .devcontainer の使い方および具体的な設定内容の説明。中身のDockerfileとdevcontainer.jsonの具体的なコード内容まで含めてください。
                         3. frontend: フロントエンドの初期環境構築手順の詳細な説明（.devcontainerで整う環境構築を再度ローカルで整えるような説明をしないでください。）
                         4. backend: バックエンドの初期環境構築手順の詳細な説明（.devcontainerで整う環境構築を再度ローカルで整えるような説明をしないでください。）
-                        出力は以下のJSON形式に従ってください：
+                        出力は以下のJSON形式に従ってください:
                         {format_instructions}
                     """,
             partial_variables={"format_instructions": parser.get_format_instructions()}
