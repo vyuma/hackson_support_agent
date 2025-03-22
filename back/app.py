@@ -9,7 +9,7 @@ app = FastAPI(
 )
 
 # CORS設定 多分最後のurl/の/は必要ない
-origins = ["https://hackson-support-agent-lzcy0oa36-vyumas-projects.vercel.app","http://localhost:3001","https://hackson-support-agent-git-hotfix-depolygit-vyumas-projects.vercel.app","https://hackson-support-agent.vercel.app"]
+origins = ["https://hackson-support-agent-lzcy0oa36-vyumas-projects.vercel.app","http://localhost:3001","https://hackson-support-agent-git-hotfix-depolygit-vyumas-projects.vercel.app","https://hackson-support-agent.vercel.app","https://hackson-support-agent-git-develop-vyumas-projects.vercel.app/"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

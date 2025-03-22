@@ -18,22 +18,22 @@ class EnvironmentService(BaseService):
         response_schemas = [
             ResponseSchema(
                 name="overall",
-                description="全体の環境構築ハンズオンの説明。Markdown形式。",
+                description="全体の環境構築ハンズオンの説明。",
                 type="string"
             ),
             ResponseSchema(
                 name="devcontainer",
-                description=".devcontainer の使い方と設定内容の詳細説明。Markdown形式。",
+                description=".devcontainer の使い方と設定内容の詳細説明。",
                 type="string"
             ),
             ResponseSchema(
                 name="frontend",
-                description="フロントエンドの初期環境構築手順の詳細説明。Markdown形式。（ただし、.devcontainerで整う環境構築を再度ローカルで）",
+                description="フロントエンドの初期環境構築手順の詳細説明。（ただし、.devcontainerで整う環境構築を再度ローカルで）",
                 type="string"
             ),
             ResponseSchema(
                 name="backend",
-                description="バックエンドの初期環境構築手順の詳細説明。Markdown形式。（ただし、.devcontainerで整う環境構築を再度ローカルで整える必要はありません）",
+                description="バックエンドの初期環境構築手順の詳細説明。（ただし、.devcontainerで整う環境構築を再度ローカルで整える必要はありません）",
                 type="string"
             )
         ]

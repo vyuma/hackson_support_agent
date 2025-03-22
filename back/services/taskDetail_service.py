@@ -17,7 +17,9 @@ class TaskDetailService(BaseService):
             ResponseSchema(
                 name="tasks",
                 description=(
-                    "各タスクは以下の形式のオブジェクトです。例:{ tasks : [{task_name: string, priority: string, content: string, detail: string}]}"
+                    "各タスクは以下の形式のオブジェクトです。"
+                    "タスク名、優先度（Must, Should, Could）、内容、そして追加の詳細情報（detail）を含む。"
+                    "例: {task_name: string, priority: string, content: string, detail: string}"
                 ),
                 type="object(array(objects))"
             )
@@ -32,8 +34,12 @@ class TaskDetailService(BaseService):
                         また、マークダウン形式でこれを見るだけでこのタスクを完了できるほどの詳細さで出力してください。
                         ただし、コードに関しては最小限の記述で十分です。ある程度は読者の自力で考えられるようにしてください。
                         ユーザーはハッカソンに参加する初心者です。
+                        
+                        注意: バックスラッシュやクォーテーションマークなどの特殊文字を使用する場合は、JSONとして正しくエスケープされているか確認してください。
+                        
                         入力タスクリスト:
                         {tasks_input}
+                        
                         回答は以下のJSON形式で出力してください:
                         {format_instructions}
                     """,
@@ -41,7 +47,7 @@ class TaskDetailService(BaseService):
         )
 
         # JSON形式の文字列に変換
-        tasks_input = json.dumps([task.dict() for task in tasks], ensure_ascii=False, indent=2)
+        tasks_input = json.dumps([task.dict() for task in tasks], ensure_ascii=True, indent=2)
         
         chain = prompt_template | self.flash_llm_pro | parser
         result = chain.invoke({"tasks_input": tasks_input})
