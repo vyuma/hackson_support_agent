@@ -8,14 +8,15 @@ $ git clone
 ## back側の環境構築
 
 ```bash
-$ cd back
 $ python -m venv venv
 $ source venv/bin/activate
-$ 
+$ cd back
 $ pip install -r requirements.txt
 ```
 
 .envファイルを作成し、以下の内容を記述する
+
+Google API Key はGoogle AI Platformから取得する
 ```bash
 DATABASE_URL="postgresql://hack_helper:hackson@db/hackson_support_agent"
 GOOGLE_API_KEY="YOUR_GOOGLE_API_KEY"
