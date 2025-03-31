@@ -37,6 +37,6 @@ class DirectoryService(BaseService):
         """,
             
         )
-        chain = prompt_template | self.flash_llm_pro | StrOutputParser()
+        chain = prompt_template | self.llm_flash | StrOutputParser()
         result = chain.invoke({"framework": framework, "specification": specification})
         return result

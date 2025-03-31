@@ -24,8 +24,8 @@ async def root():
 
 # APIルーターの登録
 app.include_router(projects.router)
-app.include_router(qanda.router, prefix="/api/yume_question", tags=["Q&A"])
-app.include_router(summary.router, prefix="/api/yume_summary", tags=["Summary"])
+app.include_router(qanda.router, prefix="/api/question", tags=["Q&A"])
+app.include_router(summary.router, prefix="/api/summary", tags=["Summary"])
 app.include_router(tasks.router, prefix="/api/get_object_and_tasks", tags=["Tasks"])
 app.include_router(framework.router, prefix="/api/framework", tags=["Framework"])
 app.include_router(directory.router, prefix="/api/directory", tags=["Directory"])

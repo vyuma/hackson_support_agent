@@ -54,6 +54,10 @@ export default function EnvHandsOnPage() {
     }
   }, []);
 
+
+  
+  
+
   /**
    * DB への POST を行う関数
    * - 成功時は { project_id, message } を受け取り、project_id を返す

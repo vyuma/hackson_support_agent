@@ -3,10 +3,12 @@ from langchain.output_parsers import ResponseSchema, StructuredOutputParser
 from .base_service import BaseService
 from typing import List, Dict
 import json
+import re
 
 class TaskDetailService(BaseService):
     def __init__(self):
         super().__init__()
+
 
     def generate_task_details(self, tasks: List[Dict]) -> List[Dict]:
         """
@@ -21,7 +23,7 @@ class TaskDetailService(BaseService):
                     "タスク名、優先度（Must, Should, Could）、内容、そして追加の詳細情報（detail）を含む。"
                     "例: {task_name: string, priority: string, content: string, detail: string}"
                 ),
-                type="object(array(objects))"
+                type="array(objects)"
             )
         ]
         parser = StructuredOutputParser.from_response_schemas(response_schemas)
@@ -34,22 +36,27 @@ class TaskDetailService(BaseService):
                         また、マークダウン形式でこれを見るだけでこのタスクを完了できるほどの詳細さで出力してください。
                         ただし、コードに関しては最小限の記述で十分です。ある程度は読者の自力で考えられるようにしてください。
                         ユーザーはハッカソンに参加する初心者です。
-                        
-                        注意: バックスラッシュやクォーテーションマークなどの特殊文字を使用する場合は、JSONとして正しくエスケープされているか確認してください。
-                        
+                        重要: 応答は必ず有効なJSONである必要があります。特殊文字（バックスラッシュ、引用符など）は適切にエスケープしてください。Markdownのコードブロック内でも引用符とバックスラッシュには特に注意が必要です。
+                        以下の制約を厳密に守ってください:
+                        1. 出力は単純な構造を持つ必要があります: "tasks"キーの配列のみです
+                        2. 各タスクには task_name, priority, content, detail フィールドのみを含めてください
+                        3. 改行は文字列内で "\\n" としてエスケープしてください
+                        4. コードブロックを含める場合は、Markdown記法の ```の代わりに "```" とエスケープしてください
+                        5. JSON文字列として有効であることを優先し、必要に応じて内容を簡略化してください
                         入力タスクリスト:
                         {tasks_input}
-                        
                         回答は以下のJSON形式で出力してください:
                         {format_instructions}
+                        最後に、JSONが有効であることを確認してから返答してください。
+                        
                     """,
             partial_variables={"format_instructions": parser.get_format_instructions()}
         )
 
         # JSON形式の文字列に変換
-        tasks_input = json.dumps([task.dict() for task in tasks], ensure_ascii=True, indent=2)
+        tasks_input = json.dumps([task.dict() for task in tasks],  indent=2)
         
-        chain = prompt_template | self.flash_llm_pro | parser
+        chain = prompt_template | self.llm_pro | parser
         result = chain.invoke({"tasks_input": tasks_input})
         # result は {"tasks": [...] } となることを期待
         return result.get("tasks", [])
