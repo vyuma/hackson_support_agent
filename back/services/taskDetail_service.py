@@ -1,14 +1,20 @@
 from langchain.prompts import ChatPromptTemplate
 from langchain.output_parsers import ResponseSchema, StructuredOutputParser
-from .base_service import BaseService
+from langchain.schema.runnable import RunnableSequence
 from typing import List, Dict
 import json
-import re
+from copy import deepcopy
+# json_repair
+from json_repair import repair_json
+
+
+
+from base_service import BaseService
+
 
 class TaskDetailService(BaseService):
     def __init__(self):
         super().__init__()
-
 
     def generate_task_details(self, tasks: List[Dict]) -> List[Dict]:
         """
@@ -52,15 +58,42 @@ class TaskDetailService(BaseService):
                     """,
             partial_variables={"format_instructions": parser.get_format_instructions()}
         )
-
-        # JSON形式の文字列に変換
-        tasks_input = json.dumps([task.dict() for task in tasks],  indent=2)
         
-        chain = prompt_template | self.llm_pro | parser
-        result = chain.invoke({"tasks_input": tasks_input})
-        # result は {"tasks": [...] } となることを期待
+        # 中間出力を保存する辞書
+        intermediate_results = {}
+        # 中間出力をキャプチャする関数 完全な副作用関数なので基本的にこのスコープの中で閉じ込めておくべき
+        
+        def capture_output(x):
+            intermediate_results["llm_output"] = x
+            # ここでJSONを修正する
+            # JSONの修正
+            # AIMessageからコンテンツを取得
+            if hasattr(x, 'content'):
+                content = x.content
+            else:
+                # AIMessageでない場合は文字列変換を試みる
+                content = str(x)
+            # JSONを修正
+            repaired_json = repair_json(content)
+            if hasattr(x, 'content'):
+            # AIMessageの場合は、contentを置き換えた新しいオブジェクトを作成
+                repaired_message = deepcopy(x)
+                repaired_message.content = repaired_json
+                return repaired_message
+            else:
+                # それ以外の場合は修復された文字列を返す
+                return repaired_json
+        
+        # LLMから出てくる生文字列を出力したい
+        chain =(
+            prompt_template
+            | self.llm_pro
+            | (lambda x: capture_output(x)) # 中間出力のキャプチャ
+            | parser
+        )
+        result = chain.invoke({"tasks_input": tasks})
+        
         return result.get("tasks", [])
-
 
 if __name__ == '__main__':
     tasks = [
@@ -70,10 +103,7 @@ if __name__ == '__main__':
     ]
 
     service = TaskDetailService()
-    
-    try:
-        task_details = service.generate_task_details(tasks)
-        print("Generated Task Details:")
-        print(json.dumps(task_details, ensure_ascii=False, indent=2))
-    except Exception as e:
-        print("Test failed with error:", str(e))
+
+    task_details = service.generate_task_details(tasks)
+    print("Generated Task Details:")
+    print(json.dumps(task_details, ensure_ascii=False, indent=2))
