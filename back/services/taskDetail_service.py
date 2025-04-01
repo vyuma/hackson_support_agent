@@ -9,7 +9,7 @@ from json_repair import repair_json
 
 
 
-from base_service import BaseService
+from .base_service import BaseService
 
 
 class TaskDetailService(BaseService):
