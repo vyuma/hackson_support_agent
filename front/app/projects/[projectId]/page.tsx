@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { Sun, Moon, FolderTree, Terminal, Save, AlertTriangle } from "lucide-react";
+import { Sun, Moon, FolderTree, Terminal, Save} from "lucide-react";
 
 import type { Task, ProjectData } from "../../types/taskTypes";
 import Column from "../../components/Column";

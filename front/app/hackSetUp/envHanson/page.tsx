@@ -7,7 +7,7 @@ import { ArrowRight, Terminal, Code, Settings, Layout, Server, Sun, Moon, AlertT
 
 import Loading from "@/components/Loading";
 
-import { EnvHandsOn, requestBodyType } from "@/types/taskTypes";
+import { EnvHandsOn　} from "@/types/taskTypes";
 
 export default function EnvHandsOnPage() {
   const router = useRouter();
