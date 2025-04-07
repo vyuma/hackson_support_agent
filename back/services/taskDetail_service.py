@@ -135,7 +135,7 @@ class TaskDetailService(BaseService):
         # LLMから出てくる生文字列を出力したい
         chain =(
             prompt_template
-            | self.llm_flash
+            | self.llm_pro
             | (lambda x: capture_output(x)) # 中間出力のキャプチャ
             | parser
         )
