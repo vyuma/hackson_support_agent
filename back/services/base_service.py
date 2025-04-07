@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_anthropic import ChatAnthropic
+from typing import List, Dict
 
 load_dotenv("/workspaces/hackson_support_agent/back/.env.local")
 
@@ -60,4 +61,6 @@ class BaseService:
                     temperature=temperature,
                     anthropic_api_key=api_key
                 )
+
+
 

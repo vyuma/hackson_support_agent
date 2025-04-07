@@ -2,10 +2,19 @@ from langchain.prompts import ChatPromptTemplate
 from langchain.output_parsers import ResponseSchema, StructuredOutputParser
 from langchain.schema.runnable import RunnableSequence
 from typing import List, Dict
+from pydantic import BaseModel
 import json
 from copy import deepcopy
 # json_repair
 from json_repair import repair_json
+
+class TaskItem(BaseModel):
+    task_name: str
+    priority: str  # "Must", "Should", "Could" のいずれか
+    content: str
+
+class TaskDetailRequest(BaseModel):
+    tasks: List[TaskItem]
 
 
 
@@ -15,7 +24,44 @@ from .base_service import BaseService
 class TaskDetailService(BaseService):
     def __init__(self):
         super().__init__()
-
+    
+    def _format_tasks(self, tasks: List[Dict]) -> str:
+        """
+        タスクリストをJSON形式の文字列に変換するヘルパーメソッド。
+        """
+        return json.dumps(tasks, ensure_ascii=False, indent=2)
+    
+    def _detail_format(self, tasks:TaskDetailRequest)-> List[Dict]:
+        """
+        タスクリストの形式をpydanticからdictに変換するヘルパーメソッド
+        以下のように渡されるTaskDetailResponseクラスをただのdictに変換する
+        class TaskItem(BaseModel):
+            task_name: str
+            priority: str  # "Must", "Should", "Could" のいずれか
+            content: str
+        class TaskDetailRequest(BaseModel):
+            tasks: List[TaskItem]
+        """
+        tasks_dict: Dict[str] = tasks.model_dump()
+        print(tasks_dict)
+        print(type(tasks_dict))
+        return tasks_dict
+        
+        
+    
+    def generate_task_details_by_batch(self, tasks: List[Dict]) -> List[Dict]:
+        batch = 10
+        results = []
+        for i in range(0, len(tasks), batch):
+            print(f'これは回数{i}回目です')
+            batch_tasks = tasks[i:i + batch]
+            # タスクリストをJSON形式の文字列に変換
+            tasks_input = self._detail_format(batch_tasks)
+            # タスク詳細を生成
+            task_details = self.generate_task_details(tasks_input)
+            results.extend(task_details)
+        return results
+    
     def generate_task_details(self, tasks: List[Dict]) -> List[Dict]:
         """
         入力のタスクリスト（各タスクは task_name, priority, content を含む）を受け取り、
@@ -68,6 +114,8 @@ class TaskDetailService(BaseService):
             # ここでJSONを修正する
             # JSONの修正
             # AIMessageからコンテンツを取得
+            print(intermediate_results)
+            
             if hasattr(x, 'content'):
                 content = x.content
             else:
@@ -87,7 +135,7 @@ class TaskDetailService(BaseService):
         # LLMから出てくる生文字列を出力したい
         chain =(
             prompt_template
-            | self.llm_pro
+            | self.llm_flash
             | (lambda x: capture_output(x)) # 中間出力のキャプチャ
             | parser
         )
@@ -98,12 +146,15 @@ class TaskDetailService(BaseService):
 if __name__ == '__main__':
     tasks = [
         {"task_name": "要件定義", "priority": "Must", "content": "要件定義を行う"},
-        {"task_name": "画面設計", "priority": "Must", "content": "画面設計を行う"},
-        {"task_name": "実装", "priority": "Must", "content": "実装を行う"},
+        {"task_name": "設計", "priority": "Should", "content": "設計を行う"},
+        {"task_name": "実装", "priority": "Could", "content": "実装を行う"},
+        {"task_name": "テスト", "priority": "Must", "content": "テストを行う"},
+        {"task_name": "デプロイ", "priority": "Should", "content": "デプロイを行う"},
+        {"task_name": "運用", "priority": "Could", "content": "運用を行う"},
     ]
 
     service = TaskDetailService()
-
-    task_details = service.generate_task_details(tasks)
+    print("Original Tasks:")
+    task_details = service.generate_task_details_by_batch(tasks)
     print("Generated Task Details:")
     print(json.dumps(task_details, ensure_ascii=False, indent=2))

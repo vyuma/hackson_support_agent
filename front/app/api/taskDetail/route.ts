@@ -2,7 +2,7 @@
 
 // app/api/taskDetail/route.ts の修正バージョン
 
-import { TaskResponse, Task, DivideTask } from "@/types/taskTypes";
+import { DivideTask,TaskResponse } from "@/types/taskTypes";
 
 type TaskDetailGetProps = {
   idea: string;
@@ -19,14 +19,18 @@ type TaskDetailGetProps = {
 const fetchTaskDetail = async (tasks: DivideTask[]) => {
   try {
     // ここでは、送信前にログ出力を追加して内容を確認
-    console.log("タスク詳細APIにリクエスト送信:", JSON.stringify(tasks));
+    console.log("タスク詳細APIにリクエスト送信:", JSON.stringify({
+      "tasks": tasks,
+    }),);
     
     const taskDetail = await fetch(
       process.env.NEXT_PUBLIC_API_URL + "/api/taskDetail/",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(tasks),
+        body: JSON.stringify({
+          "tasks": tasks,
+        }),
       }
     ); 
     
@@ -37,8 +41,11 @@ const fetchTaskDetail = async (tasks: DivideTask[]) => {
     if (!taskDetail.ok) {
       throw new Error("タスク詳細APIエラー: " + taskDetail.statusText);
     }
-    
-    const taskDetailData: Task[] = await taskDetail.json();
+    // tasksを取得する
+    const taskDetailJSON:TaskResponse = await taskDetail.json();
+    // tasksを取得する
+    const taskDetailData = taskDetailJSON.tasks;
+
     console.log("タスク詳細APIレスポンス:", taskDetailData);
 
     // 各タスクに assignment, ID プロパティを追加
@@ -130,11 +137,21 @@ export async function POST(request: Request) {
       project_id: projectId,  // EnvHandsOnPage.jsで期待しているプロパティ名に合わせる
       message: "プロジェクト情報が正常に保存されました",
     }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("エラー:", error);
+    // エラーメッセージをログ出力
+    if (error instanceof Error) {
+      console.error("エラーメッセージ:", error.message);
+    
     return Response.json(
       { message: "プロジェクト情報の保存に失敗しました: " + (error.message || "不明なエラー") },
       { status: 500 }
     );
+    }else {
+      return Response.json(
+        { message: "プロジェクト情報の保存に失敗しました: 不明なエラー" },
+        { status: 500 }
+      );
+    }
   }
 }
