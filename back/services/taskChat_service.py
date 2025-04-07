@@ -31,7 +31,7 @@ class taskChatService(BaseService):
             回答は、他の情報を含まずに、テキストのみで回答してください。
             """
         )
-        chain = prompt_template | self.flash_llm_pro | StrOutputParser()
+        chain = prompt_template | self.llm_flash | StrOutputParser()
         result = chain.invoke({
             "specification": specification,
             "directory_structure": directory_structure,

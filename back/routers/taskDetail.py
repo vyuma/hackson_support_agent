@@ -30,5 +30,6 @@ def generate_task_details(request: TaskDetailRequest):
       ]
     }
     """
+    print(request.tasks)
     detailed_tasks = TaskDetailService().generate_task_details(request.tasks)
     return responses.JSONResponse(content={"tasks": detailed_tasks}, media_type="application/json")

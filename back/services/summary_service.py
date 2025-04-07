@@ -6,13 +6,13 @@ class SummaryService(BaseService):
     def __init__(self):
         super().__init__()
 
-    def generate_yume_summary(self, yume_answer: list[dict]):
+    def generate_summary_docment(self, question_answer: list[dict]):
         """
         ユーザーのQ&A回答リストから要約を生成する。
         """
         # list[dict] => "Q: 〇〇\nA: 〇〇" のテキストに変換
-        yume_answer_str = "\n".join(
-            [f"Q: {item.dict()['Question']}\nA: {item.dict()['Answer']}" for item in yume_answer]
+        question_answer_str = "\n".join(
+            [f"Q: {item.dict()['Question']}\nA: {item.dict()['Answer']}" for item in question_answer]
         )
 
 
@@ -24,10 +24,10 @@ class SummaryService(BaseService):
             この仕様書をもとにフレームワークを決定するのでフレームワークの記述は不要です。
             マークダウン形式の仕様書のみを返してください。それ以外を含めてはいけません。
             以下の回答をもとに、プロダクト開発のための完全な仕様書を作成してください。
-            {yume_answer}
+            {question_answer}
             """
         )
 
-        chain = yume_summary_system_prompt | self.flash_llm_pro | StrOutputParser()
-        yume_summary = chain.invoke({"yume_answer": yume_answer_str})
+        chain = yume_summary_system_prompt | self.llm_pro | StrOutputParser()
+        yume_summary = chain.invoke({"question_answer": question_answer_str})
         return yume_summary

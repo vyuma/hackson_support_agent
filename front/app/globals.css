@@ -1,13 +1,28 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --card-background: #ffffff;
-  --card-foreground: #171717;
-  --border-color: #e5e7eb;
-  --primary-color: #3b82f6;
-  --primary-hover: #2563eb;
+@layer base{
+  :root {
+    --background: #ffffff;
+    --foreground: #171717;
+    --card-background: #ffffff;
+    --card-foreground: #171717;
+    --border-color: #e5e7eb;
+    --primary-color: #3b82f6;
+    --primary-hover: #2563eb;
+  }
+  /* ダークモードの変数 */
+  .dark {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    --card-background: #1f2937;
+    --card-foreground: #f3f4f6;
+    --border-color: #374151;
+    --primary-color: #3b82f6;
+    --primary-hover: #60a5fa;
+  }
+
+
+
 }
 
 @theme inline {

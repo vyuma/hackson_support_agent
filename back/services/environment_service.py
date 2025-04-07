@@ -60,7 +60,7 @@ class EnvironmentService(BaseService):
             partial_variables={"format_instructions": parser.get_format_instructions()}
         )
 
-        chain = prompt_template | self.flash_llm_pro | parser
+        chain = prompt_template | self.llm_flash | parser
         result = chain.invoke({
             "specification": specification,
             "directory": directory,

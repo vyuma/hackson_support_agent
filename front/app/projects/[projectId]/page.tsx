@@ -4,10 +4,12 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { Sun, Moon, FolderTree, Terminal, Save, AlertTriangle } from "lucide-react";
+import { Sun, Moon, FolderTree, Terminal, Save} from "lucide-react";
 
 import type { Task, ProjectData } from "../../types/taskTypes";
 import Column from "../../components/Column";
+import Loading from "@/components/Loading";
+import ErrorShow from "@/components/Error";
 
 const UNASSIGNED = "";
 const DONE = "done";
@@ -185,49 +187,17 @@ export default function ProjectBoardPage() {
         darkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-100 text-gray-900'
       }`}>
         {/* サイバーパンク風ローディングアニメーション */}
-        <div className="relative w-24 h-24">
-          {/* 回転する外側リング */}
-          <div className={`absolute inset-0 border-4 border-transparent ${
-            darkMode 
-              ? 'border-t-cyan-500 border-r-pink-400' 
-              : 'border-t-purple-600 border-r-blue-500'
-          } rounded-full animate-spin`}></div>
-          
-          {/* パルスする内側サークル */}
-          <div className={`absolute inset-3 ${darkMode ? 'bg-gray-900' : 'bg-gray-100'} rounded-full flex items-center justify-center`}>
-            <div className={`w-10 h-10 ${
-              darkMode ? 'bg-cyan-500/20' : 'bg-purple-500/20'
-            } rounded-full animate-ping`}></div>
-          </div>
-          
-          {/* 文字 */}
-          <div className={`absolute inset-0 flex items-center justify-center text-xs ${
-            darkMode ? 'text-cyan-400' : 'text-purple-700'
-          } font-bold`}>
-            LOADING
-          </div>
-        </div>
+        <Loading darkMode={darkMode} />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className={`min-h-screen font-mono transition-all duration-500 flex items-center justify-center ${
-        darkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-100 text-gray-900'
-      }`}>
-        <div className={`p-6 rounded-lg max-w-md ${
-          darkMode 
-            ? 'bg-red-900/30 border border-red-700 text-red-300' 
-            : 'bg-red-50 border border-red-200 text-red-800'
-        }`}>
-          <div className="flex items-center mb-2">
-            <AlertTriangle className="mr-2" size={20} />
-            <h3 className="font-bold">エラーが発生しました</h3>
-          </div>
-          <p>{error}</p>
-        </div>
-      </div>
+      <ErrorShow 
+        error={error}
+        darkMode={darkMode}
+      />
     );
   }
 
