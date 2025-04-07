@@ -4,27 +4,10 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import MarkdownViewer from "../../components/MarkdownViewer";
 import { ArrowRight, Terminal, Code, Settings, Layout, Server, Sun, Moon, AlertTriangle } from "lucide-react";
-import { Task } from "../../types/taskTypes";
 
-interface EnvHandsOn {
-  overall: string;
-  devcontainer: string;
-  frontend: string;
-  backend: string;
-}
+import Loading from "@/components/Loading";
 
-type requestBodyType = {
-  idea: string;
-  duration: string;
-  num_people: number;
-  specification: string;
-  selected_framework: string;
-  directory_info: string;
-  menber_info: string[];
-  task_info: string[];
-  envHanson: string;
-  };
-
+import { EnvHandsOn, requestBodyType } from "@/types/taskTypes";
 
 export default function EnvHandsOnPage() {
   const router = useRouter();
@@ -39,130 +22,150 @@ export default function EnvHandsOnPage() {
   };
 
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedEnv = sessionStorage.getItem("envHanson");
-      if (storedEnv) {
-        try {
-          const parsedEnv: EnvHandsOn = JSON.parse(storedEnv);
-          setEnvData(parsedEnv);
-        } catch (err) {
-          console.error("環境構築データのパースエラー:", err);
+  // 環境構築ハンズオンデータを取得する関数
+  const fetchEnvHanson = async () =>{
+        // 仕様書、フレームワーク、ディレクトリ情報を取得
+        const specification = sessionStorage.getItem("specification");
+        const framework = sessionStorage.getItem("framework");
+        const directory = sessionStorage.getItem("directory");
+    
+        if (!specification || !framework || !directory) {
+          alert("必要なデータが不足しています。");
         }
+    try {
+      const res = await fetch(
+        process.env.NEXT_PUBLIC_API_URL + "/api/environment/",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ specification, directory, framework }),
+        }
+      );
+      if (!res.ok) {
+        throw new Error("環境構築APIエラー: " + res.statusText);
       }
+      const envData = await res.json();
+      // envDataは { overall: string, devcontainer: string, frontend: string, backend: string } を想定
+      sessionStorage.setItem("envHanson", JSON.stringify(envData));
+      setEnvData(envData);
+      return envData;
+    } catch (err: unknown) {
+      console.error(err);
+      alert("環境構築APIの呼び出しに失敗しました");
+      return null;
+    } finally{
       setLoading(false);
     }
-  }, []);
+  }
 
-
-  
-  
-
-  /**
-   * DB への POST を行う関数
-   * - 成功時は { project_id, message } を受け取り、project_id を返す
-   */
-  const postToDB = async (reqBody:requestBodyType ): Promise<string> => {
-    console.log("DBへプロジェクト情報をポストします:", reqBody);
-
-    const res = await fetch(
-      process.env.NEXT_PUBLIC_API_URL + "/projects",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(reqBody),
+  useEffect(() => {
+    // セッションストレージから確認
+    const storedEnv = sessionStorage.getItem("envHanson");
+    
+    if (storedEnv) {
+      try {
+        // すでにデータがあればそれを使用
+        const parsedEnv: EnvHandsOn = JSON.parse(storedEnv);
+        setEnvData(parsedEnv);
+        setLoading(false);
+      } catch (err) {
+        console.error("環境構築データのパースエラー:", err);
+        // エラーの場合は新たに取得
+        fetchEnvHanson();
       }
-    );
-    if (!res.ok) {
-      throw new Error("DB POSTエラー: " + res.statusText);
+    } else {
+      // データがなければ新たに取得
+      fetchEnvHanson();
     }
-    const data = await res.json();
-    console.log("DBレスポンス:", data);
-    // data = { project_id: "...", message: "..." }
-    return data.project_id;
-  };
-
+  }, []);
+  
+  
   /**
    * - detailedTasks が取得できるまで待機（最大30秒）
    * - セッションストレージから他の必要データも取得
    * - POST ボディを組み立てて DB へ送信
    * - 返却された project_id をもとに `/projects/${project_id}` へ遷移
    */
+
   const handleBack = async () => {
     setProcessingStart(true);
-    
-    let detailedTasks = sessionStorage.getItem("detailedTasks");
-    let attempts = 0;
-    while (!detailedTasks && attempts < 30) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      detailedTasks = sessionStorage.getItem("detailedTasks");
-      attempts++;
-    }
-    if (!detailedTasks) {
-      alert("タスク詳細の取得に失敗しました。しばらく待ってから再度お試しください。");
-      setProcessingStart(false);
-      return;
-    }
-
-    // セッションストレージから各種データを取得
-    const dream = sessionStorage.getItem("dream");         // アイデア
-    const duration = sessionStorage.getItem("duration");   // 期間
-    const numPeople = sessionStorage.getItem("numPeople"); // 人数
-    const specification = sessionStorage.getItem("specification");
-    const framework = sessionStorage.getItem("framework");
-    const directory = sessionStorage.getItem("directory");
-    // tasks は詳細なしのタスクリスト
-    const tasks = sessionStorage.getItem("tasks");
-    const envHanson = sessionStorage.getItem("envHanson");  // 環境構築ハンズオン
-
-    if (!dream || !duration || !numPeople || !specification || !framework || !directory || !tasks || !envHanson) {
-      alert("プロジェクト情報が不足しています。");
-      setProcessingStart(false);
-      return;
-    }
-
-
-    // detailedTasks を配列にパース
-    const detailedTasksArray:Task[]  = JSON.parse(detailedTasks);
-
-    // 各タスクに assignment, ID プロパティを追加
-    const tasksWithAssignment = detailedTasksArray.map((task, index: number) => ({
-      ...task,
-      assignment: task.assignment ?? "",
-      task_id: index,
-    }));
-
-    // DB に送る際、task_info は string[] を想定 ⇒ 各タスクを JSON.stringify して入れるなど方法は任意
-    // ここでは各 detailTask オブジェクトをまとめて string 化
-    const taskInfoStrings = tasksWithAssignment.map((taskObj) => JSON.stringify(taskObj));
-
-    // 人数分のメンバーの文字列の配列を作成
-    const members = Array.from({ length: parseInt(numPeople) }, () => "menber" + Math.floor(Math.random() * 1000));
-
-    // DB に送るリクエストボディを組み立て
-    // (仕様書に沿う形)
-    const requestBody = {
-      idea: dream,
-      duration: duration,
-      num_people: parseInt(numPeople, 10),
-      specification: specification,
-      selected_framework: framework,
-      directory_info: directory,
-      menber_info: members,
-      task_info: taskInfoStrings,
-      envHanson: envHanson,
-    };
-
+  
     try {
-      const projectId = await postToDB(requestBody);
+      // セッションストレージから各種データを取得
+      const dream = sessionStorage.getItem("dream");         // アイデア
+      const duration = sessionStorage.getItem("duration");   // 期間
+      const numPeople = sessionStorage.getItem("numPeople"); // 人数
+      const specification = sessionStorage.getItem("specification"); // 仕様書
+      const framework = sessionStorage.getItem("framework");   // フレームワーク
+      const directory = sessionStorage.getItem("directory");    // ディレクトリ情報
+      // tasks は詳細なしのタスクリスト
+      const tasks = sessionStorage.getItem("tasks");         // タスクリスト
+      const envHanson = sessionStorage.getItem("envHanson");  // 環境構築ハンズオン
+  
+      if (!dream || !duration || !numPeople || !specification || !framework || !directory || !tasks || !envHanson) {
+        alert("プロジェクト情報が不足しています。");
+        setProcessingStart(false);
+        return;
+      }
+      
+      // 人数分のメンバーの文字列の配列を作成
+      const members = Array.from({ length: parseInt(numPeople) }, () => "member" + Math.floor(Math.random() * 1000));
+  
+      // DB に送るリクエストボディを組み立て
+      const requestBody = {
+        idea: dream,
+        duration: duration,
+        num_people: parseInt(numPeople, 10),
+        specification: specification,
+        selected_framework: framework,
+        directory_info: directory,
+        menber_info: members,
+        envHanson: envHanson,
+      };
+  
+      // JSON.parse を適用（文字列がエンコードされているため）
+      const taskList = JSON.parse(tasks);
+  
+      console.log("リクエストボディ:", {
+        reqBodyData: requestBody,
+        tasksData: taskList,
+      });
+  
+      const projectData = await fetch(
+        process.env.NEXT_PUBLIC_NEXT_API_URL + "/taskDetail/", 
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            reqBodyData: requestBody,
+            tasksData: taskList,
+          })
+        }
+      );
+      
+      if (!projectData.ok) {
+        const errorText = await projectData.text();
+        throw new Error(`プロジェクト登録APIエラー: ${projectData.status} ${projectData.statusText} - ${errorText}`);
+      }
+      
+      const responseData = await projectData.json();
+  
+      // project_idを取得する（レスポンスのプロパティ名を確認）
+      const projectId = responseData.project_id;
+      if (!projectId) {
+        throw new Error("プロジェクトIDが返されませんでした");
+      }
+      
       router.push(`/projects/${projectId}`);
-    } catch (err: unknown) {
-      console.error(err);
-      alert("DBへの登録に失敗しました:");
+    } catch (err:unknown) {
+      console.error("エラー発生:", err);
+      alert("プロジェクトの登録に失敗しました");
+      // エラー処理を追加することも検討
       setProcessingStart(false);
     }
   };
 
+  // セクションに応じたアイコンを取得する関数
   const getIconForSection = (section: string) => {
     switch (section) {
       case "overall": return <Terminal size={18} />;
@@ -224,29 +227,7 @@ export default function EnvHandsOnPage() {
           {loading ? (
             <div className="flex flex-col justify-center items-center py-16">
               {/* サイバーパンク風ローディングアニメーション */}
-              <div className="relative w-24 h-24">
-                {/* 回転する外側リング */}
-                <div className={`absolute inset-0 border-4 border-transparent ${
-                  darkMode 
-                    ? 'border-t-cyan-500 border-r-pink-400' 
-                    : 'border-t-purple-600 border-r-blue-500'
-                } rounded-full animate-spin`}></div>
-                
-                {/* パルスする内側サークル */}
-                <div className={`absolute inset-3 ${darkMode ? 'bg-gray-900' : 'bg-gray-100'} rounded-full flex items-center justify-center`}>
-                  <div className={`w-10 h-10 ${
-                    darkMode ? 'bg-cyan-500/20' : 'bg-purple-500/20'
-                  } rounded-full animate-ping`}></div>
-                </div>
-                
-                {/* 文字 */}
-                <div className={`absolute inset-0 flex items-center justify-center text-xs ${
-                  darkMode ? 'text-cyan-400' : 'text-purple-700'
-                } font-bold`}>
-                  LOADING
-                </div>
-              </div>
-              
+              <Loading darkMode={darkMode} />
               {/* ローディングテキスト */}
               <div className={`mt-6 ${
                 darkMode ? 'text-cyan-400' : 'text-purple-700'
