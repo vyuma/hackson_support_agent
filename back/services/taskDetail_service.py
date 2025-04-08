@@ -42,15 +42,16 @@ class TaskDetailService(BaseService):
         class TaskDetailRequest(BaseModel):
             tasks: List[TaskItem]
         """
-        tasks_dict: Dict[str] = tasks.model_dump()
-        print(tasks_dict)
-        print(type(tasks_dict))
-        return tasks_dict
+        # TaskDetailRequestを辞書に変換
+        task_dict = tasks 
+        
+        print(type(task_dict)) # list
+        return task_dict
         
         
     
     def generate_task_details_by_batch(self, tasks: List[Dict]) -> List[Dict]:
-        batch = 10
+        batch = 5
         results = []
         for i in range(0, len(tasks), batch):
             print(f'これは回数{i}回目です')

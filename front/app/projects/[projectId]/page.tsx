@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { Sun, Moon, FolderTree, Terminal, Save} from "lucide-react";
+import { Sun, Moon, FolderTree, Terminal, Save,Info} from "lucide-react";
 
 import type { Task, ProjectData } from "../../types/taskTypes";
 import Column from "@/components/Column";
@@ -215,7 +215,7 @@ export default function ProjectBoardPage() {
       <div className={`fixed inset-0 overflow-hidden pointer-events-none ${darkMode ? 'opacity-10' : 'opacity-5'}`}>
         <div className="absolute inset-0" style={{ 
           backgroundImage: `linear-gradient(${darkMode ? '#00ffe1' : '#8a2be2'} 1px, transparent 1px), 
-                           linear-gradient(90deg, ${darkMode ? '#00ffe1' : '#8a2be2'} 1px, transparent 1px)`,
+                          linear-gradient(90deg, ${darkMode ? '#00ffe1' : '#8a2be2'} 1px, transparent 1px)`,
           backgroundSize: '40px 40px',
           backgroundPosition: '-1px -1px'
         }}></div>
@@ -276,6 +276,19 @@ export default function ProjectBoardPage() {
                 <Terminal size={16} className="mr-2" />
                 環境構築
               </button>
+
+              <button
+                onClick={() => router.push(`/projects/${projectId}/specification`)}
+                className={`px-4 py-2 rounded-md flex items-center transition-all ${
+                  darkMode 
+                    ? 'bg-gray-700 hover:bg-gray-600 text-cyan-400 border border-cyan-900' 
+                    : 'bg-gray-200 hover:bg-gray-300 text-purple-700 border border-purple-200'
+                }`}
+              >
+                <Info size={16} className="mr-2" />
+                仕様書確認
+              </button>
+              
             </div>
           </div>
         </div>

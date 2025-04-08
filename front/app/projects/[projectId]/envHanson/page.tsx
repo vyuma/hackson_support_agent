@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import MarkdownViewer from "../../../components/MarkdownViewer";
-import ChatBot from "../../../components/ChatBot";
+import MarkdownViewer from "@/components/MarkdownViewer";
+import ChatBot from "@/components/ChatBot";
 import { Sun, Moon, ArrowLeft, Terminal, Globe, Server, Settings, Layers, MessageSquare, AlertTriangle } from 'lucide-react';
 
 interface EnvHansonData {
