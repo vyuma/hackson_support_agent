@@ -203,10 +203,10 @@ export default function TaskDetailPage() {
       darkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-100 text-gray-900'
     }`}>
       {/* アニメーション背景グリッド */}
-      <div className={`fixed inset-0 overflow-hidden pointer-events-none ${darkMode ? 'opacity-10' : 'opacity-5'}`}>
-        <div className="absolute inset-0" style={{ 
+      <div className={`fixed inset-0 overflow-hidden pointer-events-none z-10 ${darkMode ? 'opacity-10' : 'opacity-5'}`}>
+        <div className="absolute inset-0"style={{ 
           backgroundImage: `linear-gradient(${darkMode ? '#00ffe1' : '#8a2be2'} 1px, transparent 1px), 
-                           linear-gradient(90deg, ${darkMode ? '#00ffe1' : '#8a2be2'} 1px, transparent 1px)`,
+                          linear-gradient(90deg, ${darkMode ? '#00ffe1' : '#8a2be2'} 1px, transparent 1px)`,
           backgroundSize: '40px 40px',
           backgroundPosition: '-1px -1px'
         }}></div>
@@ -225,13 +225,11 @@ export default function TaskDetailPage() {
       </button>
 
       {/* ヘッダー */}
-      <header className={`p-4 md:p-6 transition-all duration-300 z-10 relative ${
-        darkMode 
-          ? 'bg-gray-800/80 border-b border-cyan-800/50 shadow-lg shadow-cyan-900/20' 
-          : 'bg-white/80 backdrop-blur-sm border-b border-purple-200 shadow-lg shadow-purple-200/20'
-      }`}>
+      <header className={`p-4 md:p-6 transition-all duration-300 z-100 relative
+        
+        `}>
         <div className="container mx-auto">
-          <div className="flex justify-between items-center">
+          <div className={`flex justify-between items-center ${darkMode ? 'bg-gray-900': "bg-white"}`}>
             <button 
               onClick={() => router.back()} 
               className={`px-4 py-2 rounded-md flex items-center transition-all ${
@@ -244,21 +242,22 @@ export default function TaskDetailPage() {
               戻る
             </button>
             
-            <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            <div className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               プロジェクトID: {projectId} / タスクID: {taskId}
             </div>
           </div>
         </div>
       </header>
-
-      <div className="container mx-auto px-4 py-8 relative z-10">
+      <div className={`container mx-auto px-4 py-8 relative z-10 
+        darkMo
+        `}>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           {/* タスク詳細セクション (左側3カラム) */}
           <div className="lg:col-span-3">
-            <div className={`mb-6 rounded-lg shadow-lg border transition-all backdrop-blur-sm ${
+            <div className={`mb-6 rounded-lg shadow-lg border transition-all ${
               darkMode 
-                ? 'bg-gray-800/80 border-cyan-800/40' 
-                : 'bg-white/90 border-purple-200'
+                ? 'bg-gray-800 border-cyan-800/40' 
+                : 'bg-white border-purple-200'
             }`}>
               <div className={`p-4 border-b ${
                 darkMode ? 'border-gray-700' : 'border-gray-200'
@@ -304,8 +303,8 @@ export default function TaskDetailPage() {
                   </h2>
                   <div className={`rounded-lg border ${
                     darkMode 
-                      ? 'border-gray-700 bg-gray-800/50' 
-                      : 'border-gray-200 bg-gray-50/50'
+                      ? 'border-gray-700 bg-gray-800' 
+                      : 'border-gray-200 bg-gray-50'
                   }`}>
                     <MarkdownViewer markdown={task.detail || ""} isDarkMode={darkMode} />
                   </div>
@@ -316,10 +315,10 @@ export default function TaskDetailPage() {
           
           {/* チャットボットセクション (右側2カラム) */}
           <div className="lg:col-span-2">
-            <div className={`sticky top-24 rounded-lg shadow-lg border transition-all backdrop-blur-sm ${
+            <div className={`sticky top-24 rounded-lg shadow-lg border transition-all ${
               darkMode 
-                ? 'bg-gray-800/80 border-pink-800/40' 
-                : 'bg-white/90 border-blue-200'
+                ? 'bg-gray-800 border-pink-800/40' 
+                : 'bg-white border-blue-200'
             }`}>
               <div className={`p-4 border-b ${
                 darkMode ? 'border-gray-700' : 'border-gray-200'
@@ -347,13 +346,12 @@ export default function TaskDetailPage() {
       </div>
       
       {/* フッター */}
-      <footer className={`p-4 text-center ${darkMode ? 'text-gray-500' : 'text-gray-600'} text-xs relative z-10`}>
-      <div className={`text-xs text-center mt-4 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-        <span className={darkMode ? 'text-cyan-400' : 'text-purple-600'}>CYBER</span>
-        <span className={darkMode ? 'text-pink-500' : 'text-blue-600'}>DREAM</span> v2.4.7
-      </div>
+      <footer className={`p-4 text-center text-xs relative z-10 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+        <div className="text-xs text-center mt-4">
+          <span className={darkMode ? 'text-cyan-400' : 'text-purple-600'}>CYBER</span>
+          <span className={darkMode ? 'text-pink-500' : 'text-blue-600'}>DREAM</span> v2.4.7
+        </div>
       </footer>
-
     </div>
   );
 }
