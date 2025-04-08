@@ -80,7 +80,10 @@ button,
 /* カードとコンテナの基本スタイル */
 .card, 
 .container {
-  background-color: var(--card-background);
+  color: var(--card-foreground);
+  border-color: var(--border-color);
+}
+.container_dark{
   color: var(--card-foreground);
   border-color: var(--border-color);
 }
