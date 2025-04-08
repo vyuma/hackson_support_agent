@@ -85,7 +85,7 @@ const GraphTaskPage: React.FC = () => {
       }
       const data = await res.json();
       setGraphEdges(data.edges);
-    } catch (err: any) {
+    } catch (err) {
       console.error("タスクグラフ取得エラー:", err);
       setError("タスクグラフの取得に失敗しました");
     }
