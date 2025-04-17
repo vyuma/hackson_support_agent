@@ -1,8 +1,6 @@
-
-
 // app/api/taskDetail/route.ts の修正バージョン
 
-import { DivideTask,TaskResponse } from "@/types/taskTypes";
+import { DivideTask, TaskResponse } from "@/types/taskTypes";
 
 type TaskDetailGetProps = {
   idea: string;
@@ -12,7 +10,7 @@ type TaskDetailGetProps = {
   selected_framework: string;
   directory_info: string;
   menber_info: string[];
-  task_info?: string[];
+  task_info: string[];  // オプショナルから必須に変更
   envHanson: string;
 };
 
@@ -21,7 +19,7 @@ const fetchTaskDetail = async (tasks: DivideTask[]) => {
     // ここでは、送信前にログ出力を追加して内容を確認
     console.log("タスク詳細APIにリクエスト送信:", JSON.stringify({
       "tasks": tasks,
-    }),);
+    }));
     
     const taskDetail = await fetch(
       process.env.NEXT_PUBLIC_API_URL + "/api/taskDetail/",
@@ -42,7 +40,7 @@ const fetchTaskDetail = async (tasks: DivideTask[]) => {
       throw new Error("タスク詳細APIエラー: " + taskDetail.statusText);
     }
     // tasksを取得する
-    const taskDetailJSON:TaskResponse = await taskDetail.json();
+    const taskDetailJSON: TaskResponse = await taskDetail.json();
     // tasksを取得する
     const taskDetailData = taskDetailJSON.tasks;
 
@@ -55,8 +53,8 @@ const fetchTaskDetail = async (tasks: DivideTask[]) => {
       task_id: index,
     }));
 
-    // DB に送る際、task_info は string[] を想定 ⇒ 各タスクを JSON.stringify して入れるなど方法は任意
-    // ここでは各 detailTask オブジェクトをまとめて string 化
+
+    // タスク情報を文字列に変換
     const taskInfoStrings = tasksWithAssignment.map((taskObj) => JSON.stringify(taskObj));
     return taskInfoStrings;
   } catch (err: unknown) {
@@ -101,40 +99,65 @@ export async function POST(request: Request) {
   try {
     // リクエストボディを取得
     const body = await request.json();
-    const { reqBodyData, tasksData } = body;
     
     // リクエストボディの内容をログ出力して確認
     console.log("受信したリクエストボディ:", JSON.stringify(body, null, 2));
     
-    // reqBodyDataとtasksDataの型チェック (実際の環境に合わせて調整)
-    if (!reqBodyData || !tasksData || !Array.isArray(tasksData)) {
-      return Response.json(
-        { message: "無効なリクエスト形式です" },
-        { status: 400 }
-      );
+    // リクエストがDBスキーマに直接一致する場合とtasksDataを含む場合の両方に対応
+    let projectData: TaskDetailGetProps;
+    let tasksData: DivideTask[] | null = null;
+    
+    // リクエスト形式の判別
+    if (body.tasksData) {
+      // 従来の形式: {reqBodyData, tasksData}
+      const { reqBodyData, tasksData: tasks } = body;
+      if (!reqBodyData || !tasks || !Array.isArray(tasks)) {
+        return Response.json(
+          { message: "無効なリクエスト形式です" },
+          { status: 400 }
+        );
+      }
+      
+      projectData = reqBodyData as TaskDetailGetProps;
+      tasksData = tasks;
+    } else {
+      // 新しい形式: 直接DBスキーマに合わせたフォーマット
+      // 必須フィールドの存在チェック
+      const requiredFields = [
+        'idea', 'duration', 'num_people', 'specification', 
+        'selected_framework', 'directory_info', 'menber_info', 
+        'task_info', 'envHanson'
+      ];
+      
+      const missingFields = requiredFields.filter(field => !(field in body));
+      if (missingFields.length > 0) {
+        return Response.json(
+          { message: `必須フィールドが不足しています: ${missingFields.join(', ')}` },
+          { status: 400 }
+        );
+      }
+      
+      projectData = body as TaskDetailGetProps;
     }
     
-    const reqBody = reqBodyData as TaskDetailGetProps;
-    const tasks = tasksData as DivideTask[];
-    
-    // タスク詳細を取得
-    const taskInfo = await fetchTaskDetail(tasks);
-    if (!taskInfo) {
-      throw new Error("タスク情報の取得に失敗しました");
+    // タスクデータがある場合は処理して追加
+    if (tasksData) {
+      const taskInfo = await fetchTaskDetail(tasksData);
+      if (!taskInfo) {
+        throw new Error("タスク情報の取得に失敗しました");
+      }
+      projectData.task_info = taskInfo;
     }
-    
-    // reqBodyにtask_infoを追加
-    reqBody.task_info = taskInfo;
     
     // DBにPOST
-    const projectId = await postToDB(reqBody);
+    const projectId = await postToDB(projectData);
     if (!projectId) {
       throw new Error("プロジェクトIDの取得に失敗しました");
     }
     
     console.log("プロジェクトID:", projectId);
     return Response.json({
-      project_id: projectId,  // EnvHandsOnPage.jsで期待しているプロパティ名に合わせる
+      project_id: projectId,
       message: "プロジェクト情報が正常に保存されました",
     }, { status: 200 });
   } catch (error: unknown) {
@@ -142,12 +165,11 @@ export async function POST(request: Request) {
     // エラーメッセージをログ出力
     if (error instanceof Error) {
       console.error("エラーメッセージ:", error.message);
-    
-    return Response.json(
-      { message: "プロジェクト情報の保存に失敗しました: " + (error.message || "不明なエラー") },
-      { status: 500 }
-    );
-    }else {
+      return Response.json(
+        { message: "プロジェクト情報の保存に失敗しました: " + (error.message || "不明なエラー") },
+        { status: 500 }
+      );
+    } else {
       return Response.json(
         { message: "プロジェクト情報の保存に失敗しました: 不明なエラー" },
         { status: 500 }
