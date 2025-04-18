@@ -1,4 +1,3 @@
-// app/projects/[projectId]/graphTask/page.tsx
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -36,7 +35,6 @@ const GraphTaskPage: React.FC = () => {
   const { projectId } = useParams(); // URLから projectId を取得
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
   const [graphEdges, setGraphEdges] = useState<GraphEdge[] | null>(null);
-  const [taskTree, setTaskTree] = useState<Task[] | null>(null);
   const [diagramData, setDiagramData] = useState<TreeNode | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
@@ -97,7 +95,7 @@ const GraphTaskPage: React.FC = () => {
       await fetchProject();
     };
     loadProject();
-  }, [projectId]);
+  }, [projectId, fetchProject]);
 
   // プロジェクト情報取得後、task_infoがあればタスクグラフ取得
   useEffect(() => {
@@ -164,7 +162,6 @@ const GraphTaskPage: React.FC = () => {
     if (projectData && graphEdges !== null) {
       const tasks = parseTasks(projectData.task_info);
       const tree = buildTaskTree(tasks, graphEdges);
-      setTaskTree(tree);
       // diagramData はルートが1つの場合はそのまま、それ以外ならダミールートでまとめる
       const nodes = transformToTreeNode(tree);
       const diagram: TreeNode =
@@ -172,7 +169,7 @@ const GraphTaskPage: React.FC = () => {
       setDiagramData(diagram);
       setLoading(false);
     }
-  }, [projectData, graphEdges]);
+  }, [projectData, graphEdges, transformToTreeNode]);
 
   return (
     <div style={{ width: "100%", height: "100vh" }}>
