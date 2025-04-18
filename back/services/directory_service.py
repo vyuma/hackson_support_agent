@@ -42,16 +42,30 @@ class DirectoryService(BaseService):
             ディレクトリ構造の基本はルートに/app,/gradle,/build.gradleを置くことです。
             例:
             ```
-            project/
+            YourApp/
             ├── app/
-            │   ├── src/
-            │   ├── res/
-            │   ├── AndroidManifest.xml
-            │   └── build.gradle
+            │   ├── build.gradle.kts
+            │   ├── proguard-rules.pro
+            │   └── src/
+            │       ├── androidTest/
+            │       ├── test/
+            │       └── main/
+            │           ├── AndroidManifest.xml
+            │           ├── java/com/example/yourapp/
+            │           │   ├── data/
+            │           │   ├── domain/
+            │           │   ├── ui/
+            │           │   ├── di/
+            │           │   └── util/
+            │           └── res/
+            ├── build.gradle.kts
+            ├── settings.gradle.kts
             ├── gradle/
-            ├── build.gradle
-            ├── settings.gradle
-            └── gradlew
+            │   └── wrapper/
+            ├── gradlew
+            ├── gradlew.bat
+            ├── README.md
+            └── .gitignore
             ```
             
             iOSの場合:
@@ -74,6 +88,6 @@ class DirectoryService(BaseService):
         """,
             
         )
-        chain = prompt_template | self.llm_flash | StrOutputParser()
+        chain = prompt_template | self.llm_pro | StrOutputParser()
         result = chain.invoke({"framework": framework, "specification": specification})
         return result
