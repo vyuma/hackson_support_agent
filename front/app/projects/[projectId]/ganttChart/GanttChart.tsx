@@ -20,11 +20,6 @@ const GanttChart: React.FC<GanttChartProps> = ({ tasks, onTaskClick }) => {
     return date;
   });
 
-  // 日付をフォーマット
-  const formatDate = (date: Date): string => {
-    return `${date.getMonth() + 1}/${date.getDate()}`;
-  };
-
   // 月表示用の日付リスト
   const months = dates.reduce((acc: { month: number; count: number }[], date, index) => {
     if (index === 0 || date.getDate() === 1) {

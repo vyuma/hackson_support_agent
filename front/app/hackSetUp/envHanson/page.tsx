@@ -131,36 +131,42 @@ export default function EnvHandsOnPage() {
         tasksData: taskList,
       });
   
-      const projectData = await fetch(
-        process.env.NEXT_PUBLIC_NEXT_API_URL + "/taskDetail/", 
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            reqBodyData: requestBody,
-            tasksData: taskList,
-          })
-        }
-      );
-      
-      if (!projectData.ok) {
-        const errorText = await projectData.text();
-        throw new Error(`プロジェクト登録APIエラー: ${projectData.status} ${projectData.statusText} - ${errorText}`);
+      // app/api/taskDetail/route.ts を呼び出してタスク詳細を取得とデータベース保存を行う
+      const response = await fetch("/api/taskDetail", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reqBodyData: requestBody,
+          tasksData: taskList,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API応答エラー:", response.status, errorText);
+        throw new Error(`APIエラー: ${response.status} ${response.statusText}. 詳細: ${errorText}`);
       }
+
+      // レスポンスデータを取得
+      const responseData = await response.json();
+      console.log("APIレスポンス:", responseData);
       
-      const responseData = await projectData.json();
-  
       // project_idを取得する（レスポンスのプロパティ名を確認）
       const projectId = responseData.project_id;
       if (!projectId) {
         throw new Error("プロジェクトIDが返されませんでした");
       }
       
+      // 遷移前にステートをリセット
+      setProcessingStart(false);
       router.push(`/projects/${projectId}`);
     } catch (err:unknown) {
       console.error("エラー発生:", err);
-      alert("プロジェクトの登録に失敗しました");
-      // エラー処理を追加することも検討
+      let errorMessage = "プロジェクトの登録に失敗しました";
+      if (err instanceof Error) {
+        errorMessage += `: ${err.message}`;
+      }
+      alert(errorMessage);
       setProcessingStart(false);
     }
   };

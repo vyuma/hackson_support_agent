@@ -48,8 +48,15 @@ class DurationTaskService(BaseService):
             タスク一覧:
             {tasks_input}
             
-            回答は、以下の形式のJSONで出力してください:
-            {{ "durations": [{{"task_id": number, "start": number, "end": number}}, ...] }}
+            回答は、厳密に以下のような形式の**JSON形式のみ**で出力してください:
+            回答例（イメージ）:
+            {{
+            "durations": [
+                {{ "task_id": 0, "start": 1, "end": 5 }},
+                {{ "task_id": 1, "start": 2, "end": 4 }}
+            ]
+            }}
+            
             """,
         )
         # tasks_input: タスク情報リストをJSON形式（見やすい整形付き）に変換

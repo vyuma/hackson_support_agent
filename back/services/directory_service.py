@@ -20,7 +20,10 @@ class DirectoryService(BaseService):
             {framework}
             回答は、以下のようなコードブロック形式で、ディレクトリ構造のみをテキストで出力してください。
             ディレクトリ構造以外の情報を含めたら不正解となります。
-            また、ディレクトリ構造の基本はルートに/devcontainer,/frontend,/backendを置くことです。
+            
+            Webフレームワークの場合:
+            ディレクトリ構造の基本はルートに/devcontainer,/frontend,/backendを置くことです。
+            
             例:
             ```
             project/
@@ -34,6 +37,40 @@ class DirectoryService(BaseService):
             ├── package.json
             └── .gitignore
             ```
+            
+            Androidの場合:
+            ディレクトリ構造の基本はルートに/app,/gradle,/build.gradleを置くことです。
+            例:
+            ```
+            project/
+            ├── app/
+            │   ├── src/
+            │   ├── res/
+            │   ├── AndroidManifest.xml
+            │   └── build.gradle
+            ├── gradle/
+            ├── build.gradle
+            ├── settings.gradle
+            └── gradlew
+            ```
+            
+            iOSの場合:
+            ディレクトリ構造の基本はルートに/iosを置くことです。
+            例:
+            ```
+            project/
+            ├── ios/
+            │   ├── AppDelegate.swift
+            │   ├── Info.plist
+            │   ├── ViewController.swift
+            │   └── Main.storyboard
+            ├── Podfile
+            ├── Podfile.lock
+            ├── project.pbxproj
+            ├── project.xcworkspace/
+            └── xcuserdata/
+            ```
+                
         """,
             
         )

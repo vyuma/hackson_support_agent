@@ -6,7 +6,6 @@ import GanttChart from "./GanttChart";
 import { 
   ProjectData, 
   DurationData, 
-  Task, 
   fetchProject, 
   fetchTaskGraph, 
   mapDurationsToTasks 
@@ -34,7 +33,7 @@ const GanttChartClient: React.FC = () => {
         // タスク期間取得API呼び出し
         const durationsData = await fetchTaskGraph(proj.duration, proj.task_info);
         setDurations(durationsData);
-      } catch (err: any) {
+      } catch (err: unknown) {
         setError("データの取得に失敗しました");
         console.error(err);
       } finally {
