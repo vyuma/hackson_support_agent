@@ -9,6 +9,7 @@ router = APIRouter()
 # リクエスト用モデル
 class TaskDetailRequest(BaseModel):
     tasks: List[TaskItem]
+    specification: str
 
 @router.post("/")
 async def generate_task_details(request: TaskDetailRequest):
@@ -18,10 +19,11 @@ async def generate_task_details(request: TaskDetailRequest):
     service = TaskDetailService()
     # Pydantic モデルを dict 変換
     task_dicts = [t.model_dump() for t in request.tasks]
+    specification = request.specification
 
     try:
         # スレッド数はマシン性能とレート制限に合わせて調整
-        detailed = await run_in_threadpool(service.generate_task_details_parallel, task_dicts, 3, 5)
+        detailed = await run_in_threadpool(service.generate_task_details_parallel, task_dicts, specification, 3, 5)
         return responses.JSONResponse(content={"tasks": detailed})
     except Exception as e:
         # router レベルでも念のためキャッチ

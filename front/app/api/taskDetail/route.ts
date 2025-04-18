@@ -14,11 +14,12 @@ type TaskDetailGetProps = {
   envHanson: string;
 };
 
-const fetchTaskDetail = async (tasks: DivideTask[]) => {
+const fetchTaskDetail = async (tasks: DivideTask[], specification: string) => {
   try {
     // ここでは、送信前にログ出力を追加して内容を確認
     console.log("タスク詳細APIにリクエスト送信:", JSON.stringify({
       "tasks": tasks,
+      "specification": specification,
     }));
     
     const taskDetail = await fetch(
@@ -28,6 +29,7 @@ const fetchTaskDetail = async (tasks: DivideTask[]) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           "tasks": tasks,
+          "specification": specification,
         }),
       }
     ); 
@@ -142,7 +144,7 @@ export async function POST(request: Request) {
     
     // タスクデータがある場合は処理して追加
     if (tasksData) {
-      const taskInfo = await fetchTaskDetail(tasksData);
+      const taskInfo = await fetchTaskDetail(tasksData, projectData.specification);
       if (!taskInfo) {
         throw new Error("タスク情報の取得に失敗しました");
       }
