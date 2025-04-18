@@ -25,7 +25,7 @@ class TaskDetailService(BaseService):
     def __init__(self):
         super().__init__()
 
-    def generate_task_details_batch(self, tasks: List[Dict]) -> List[Dict]:
+    def generate_task_details_batch(self, specification: str, tasks: List[Dict]) -> List[Dict]:
         """
         複数タスクをまとめてLLMに投げ、
         生の文字列を json_repair で補正してからパースします。
@@ -55,6 +55,9 @@ class TaskDetailService(BaseService):
             5. JSON文字列として有効であることを優先し、必要に応じて内容を簡略化してください
             JSON の例:
             {format_instructions}
+            
+            仕様書(全体内のタスクの位置を把握するのに参考にしてください):
+            {specification}
 
             入力は以下の形式のタスク情報です:
             {tasks_input}
@@ -66,7 +69,10 @@ class TaskDetailService(BaseService):
 
         try:
             # LLM呼び出しして生の応答を取得
-            llm_response = (prompt | self.llm_flash).invoke({"tasks_input": tasks})
+            llm_response = (prompt | self.llm_flash).invoke({
+                "tasks_input": tasks,
+                "specification": specification
+                })
             raw = llm_response.content if hasattr(llm_response, "content") else str(llm_response)
             logger.debug("Raw LLM output: %s", raw)
 
@@ -90,13 +96,15 @@ class TaskDetailService(BaseService):
     def generate_task_details_parallel(
         self,
         tasks: List[Dict],
+        specification: str,
         batch_size: int = 3,
         max_workers: int = 5
     ) -> List[Dict]:
         batches = [tasks[i:i + batch_size] for i in range(0, len(tasks), batch_size)]
         results: List[Dict] = []
         with ThreadPoolExecutor(max_workers=min(max_workers, len(batches))) as exe:
-            futures = {exe.submit(self.generate_task_details_batch, b): b for b in batches}
+            futures = {
+                exe.submit(self.generate_task_details_batch, specification, b): b for b in batches}
             for future in as_completed(futures):
                 try:
                     results.extend(future.result())
