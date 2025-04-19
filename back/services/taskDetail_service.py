@@ -61,7 +61,6 @@ class TaskDetailService(BaseService):
             # タスク詳細を生成
             task_details = self.generate_task_details(tasks_input)
             results.extend(task_details)
-            break
         return results
     
     def generate_task_details(self, tasks: List[Dict]) -> List[Dict]:
