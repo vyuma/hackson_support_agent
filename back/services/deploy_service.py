@@ -63,4 +63,6 @@ class DeployService(BaseService):
 
         chain = prompt_template | self.llm_flash_thinking | (lambda x: capture_output(x)) | parser
         result = chain.invoke({"specification": specification, "framework": framework})
+        
+        result["deploy"] = result["deploy"].replace("```markdown",'').replace("```",'')
         return result 

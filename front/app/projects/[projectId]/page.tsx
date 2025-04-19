@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { DndProvider, useDragLayer } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { Sun, Moon, FolderTree, Terminal, Save, Info } from "lucide-react";
+import { Sun, Moon, FolderTree, Terminal, Save, Info,  CalendarCheck,CloudUpload  } from "lucide-react";
 
 import type { Task, ProjectData } from "../../types/taskTypes";
 import Column from "@/components/Column";
@@ -513,6 +513,19 @@ export default function ProjectBoardPage() {
             </div>
             
             <div className="flex flex-wrap gap-2 mt-4 md:mt-0">
+
+            <button
+                onClick={() => router.push(`/projects/${projectId}/ganttChart`)}
+                className={`px-4 py-2 rounded-md flex items-center transition-all ${
+                  darkMode 
+                    ? 'bg-gray-700 hover:bg-gray-600 text-cyan-400 border border-cyan-900' 
+                    : 'bg-gray-200 hover:bg-gray-300 text-purple-700 border border-purple-200'
+                }`}
+              >
+                < CalendarCheck  size={16} className="mr-2" />
+                スケジュール
+              </button>
+
               <button
                 onClick={() => router.push(`/projects/${projectId}/directory`)}
                 className={`px-4 py-2 rounded-md flex items-center transition-all ${
@@ -547,6 +560,18 @@ export default function ProjectBoardPage() {
               >
                 <Info size={16} className="mr-2" />
                 仕様書確認
+              </button>
+
+              <button
+                onClick={() => router.push(`/projects/${projectId}/deploy`)}
+                className={`px-4 py-2 rounded-md flex items-center transition-all ${
+                  darkMode 
+                    ? 'bg-gray-700 hover:bg-gray-600 text-cyan-400 border border-cyan-900' 
+                    : 'bg-gray-200 hover:bg-gray-300 text-purple-700 border border-purple-200'
+                }`}
+              >
+                <CloudUpload size={16} className="mr-2" />
+                デプロイ
               </button>
               
             </div>
