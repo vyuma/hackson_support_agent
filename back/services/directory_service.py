@@ -20,7 +20,10 @@ class DirectoryService(BaseService):
             {framework}
             回答は、以下のようなコードブロック形式で、ディレクトリ構造のみをテキストで出力してください。
             ディレクトリ構造以外の情報を含めたら不正解となります。
-            また、ディレクトリ構造の基本はルートに/devcontainer,/frontend,/backendを置くことです。
+            
+            Webフレームワークの場合:
+            ディレクトリ構造の基本はルートに/devcontainer,/frontend,/backendを置くことです。
+            
             例:
             ```
             project/
@@ -34,9 +37,57 @@ class DirectoryService(BaseService):
             ├── package.json
             └── .gitignore
             ```
+            
+            Androidの場合:
+            ディレクトリ構造の基本はルートに/app,/gradle,/build.gradleを置くことです。
+            例:
+            ```
+            YourApp/
+            ├── app/
+            │   ├── build.gradle.kts
+            │   ├── proguard-rules.pro
+            │   └── src/
+            │       ├── androidTest/
+            │       ├── test/
+            │       └── main/
+            │           ├── AndroidManifest.xml
+            │           ├── java/com/example/yourapp/
+            │           │   ├── data/
+            │           │   ├── domain/
+            │           │   ├── ui/
+            │           │   ├── di/
+            │           │   └── util/
+            │           └── res/
+            ├── build.gradle.kts
+            ├── settings.gradle.kts
+            ├── gradle/
+            │   └── wrapper/
+            ├── gradlew
+            ├── gradlew.bat
+            ├── README.md
+            └── .gitignore
+            ```
+            
+            iOSの場合:
+            ディレクトリ構造の基本はルートに/iosを置くことです。
+            例:
+            ```
+            project/
+            ├── ios/
+            │   ├── AppDelegate.swift
+            │   ├── Info.plist
+            │   ├── ViewController.swift
+            │   └── Main.storyboard
+            ├── Podfile
+            ├── Podfile.lock
+            ├── project.pbxproj
+            ├── project.xcworkspace/
+            └── xcuserdata/
+            ```
+                
         """,
             
         )
-        chain = prompt_template | self.flash_llm_pro | StrOutputParser()
+        chain = prompt_template | self.llm_pro | StrOutputParser()
         result = chain.invoke({"framework": framework, "specification": specification})
         return result

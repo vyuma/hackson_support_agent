@@ -60,7 +60,7 @@ export default function SetUpSummaryPage() {
         try {
             // hackQAで整形したデータをそのままAPIに送る
             const requestBody = qaData.yume_answer;
-            const res = await fetch(process.env.NEXT_PUBLIC_API_URL + "/api/yume_summary/", {
+            const res = await fetch(process.env.NEXT_PUBLIC_API_URL + "/api/summary/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(requestBody),

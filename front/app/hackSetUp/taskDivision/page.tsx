@@ -1,29 +1,16 @@
 "use client";
 
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef} from "react";
 import { useRouter } from "next/navigation";
+import Loading from "@/components/Loading";
+import { Sun, Moon, CheckCircle, List, ArrowRight } from "lucide-react";
+
+
+import { Task, TaskResponse,DirectoryResponse  } from "@/types/taskTypes";
 import TaskCard from "../../components/TaskCard";
-import { Sun, Moon, CheckCircle, AlertTriangle, List, ArrowRight } from "lucide-react";
+import ErrorLog from "@/components/Error";
 
-interface Task {
-  task_name: string;
-  priority: "Must" | "Should" | "Could";
-  content: string;
-  // detail は UI には表示せず、API呼び出し結果としてセッションストレージに保存するだけ
-  detail?: string;
-}
 
-interface TaskDetail {
-  tasks: Task[];
-}
-
-interface DirectoryResponse {
-  directory_structure: string;
-}
-
-interface TaskResponse {
-  tasks: Task[];
-}
 
 export default function TaskDivisionPage() {
   const router = useRouter();
@@ -89,33 +76,6 @@ export default function TaskDivisionPage() {
     setTasks(tasksData.tasks);
   };
 
-  // ディレクトリ作成APIは呼び出さず、タスク分割APIのみを呼び出す関数
-  const fetchTaskDivisionOnly = async () => {
-    if (typeof window === "undefined") return;
-    const specification = sessionStorage.getItem("specification");
-    const framework = sessionStorage.getItem("framework");
-    const directory = sessionStorage.getItem("directory");
-    if (!specification || !framework || !directory) {
-      setError("必要なデータ（仕様書、フレームワーク情報、ディレクトリ）が見つかりません。");
-      setLoading(false);
-      return;
-    }
-    const tasksRes = await fetch(
-      process.env.NEXT_PUBLIC_API_URL + "/api/get_object_and_tasks/",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ specification, directory, framework }),
-      }
-    );
-    if (!tasksRes.ok) {
-      throw new Error("タスク分割APIエラー: " + tasksRes.statusText);
-    }
-    const tasksData: TaskResponse = await tasksRes.json();
-    sessionStorage.setItem("taskRes", JSON.stringify(tasksData));
-    setTasks(tasksData.tasks);
-  };
-
   useEffect(() => {
     if (hasFetchedRef.current) return;
     hasFetchedRef.current = true;
@@ -135,80 +95,13 @@ export default function TaskDivisionPage() {
 
     fetchDirectoryAndTasks();
   }, []);
-// タスク詳細APIの呼び出し（422の場合、タスク分割APIのみ再実行）
-const fetchTaskDetails = useCallback(async (retryCount: number = 0) => {
-  try {
-    const taskResp = JSON.parse(sessionStorage.getItem("taskRes") || "");
-    const res = await fetch(
-      process.env.NEXT_PUBLIC_API_URL + "/api/taskDetail/",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(taskResp),
-      }
-    );
-    if (res.status === 422 && retryCount < 3) {
-      console.warn(
-        `タスク詳細APIが422を返しました。タスク分割APIのみ再実行します。（再試行 ${retryCount + 1} 回目）`
-      );
-      // タスク分割APIのみの再実行
-      await fetchTaskDivisionOnly();
-      // 再度タスク詳細化APIを呼び出す
-      return await fetchTaskDetails(retryCount + 1);
-    }
-    if (!res.ok) {
-      throw new Error("タスク詳細化APIエラー: " + res.statusText);
-    }
-    const data:TaskDetail = await res.json();
-    // 詳細付きタスクをセッションストレージに保存（UI の tasks には影響しない）
-    sessionStorage.setItem("detailedTasks", JSON.stringify(data.tasks));
-  } catch (err: unknown) {
-    console.error("TaskDetail API エラー:", err);
-  }
-}, [fetchTaskDivisionOnly]); // fetchTaskDivisionOnly を依存関係に追加
 
-useEffect(() => {
-  if (tasks.length > 0) {
-    console.log("タスク詳細化APIを呼び出します");
-    fetchTaskDetails();
-  }
-}, [tasks, fetchTaskDetails]);
 
   // 環境構築ハンズオンAPI呼び出し＆遷移処理
   const handleProceedToEnv = async () => {
     // タスク内容（非詳細版）をセッションストレージに保存
     sessionStorage.setItem("tasks", JSON.stringify(tasks));
-
-    // 仕様書、フレームワーク、ディレクトリ情報を取得
-    const specification = sessionStorage.getItem("specification");
-    const framework = sessionStorage.getItem("framework");
-    const directory = sessionStorage.getItem("directory");
-
-    if (!specification || !framework || !directory) {
-      alert("必要なデータが不足しています。");
-      return;
-    }
-
-    try {
-      const res = await fetch(
-        process.env.NEXT_PUBLIC_API_URL + "/api/environment/",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ specification, directory, framework }),
-        }
-      );
-      if (!res.ok) {
-        throw new Error("環境構築APIエラー: " + res.statusText);
-      }
-      const envData = await res.json();
-      // envDataは { overall: string, devcontainer: string, frontend: string, backend: string } を想定
-      sessionStorage.setItem("envHanson", JSON.stringify(envData));
-      router.push("/hackSetUp/envHanson");
-    } catch (err: unknown) {
-      console.error(err);
-      alert("環境構築APIの呼び出しに失敗しました");
-    }
+    router.push("/hackSetUp/envHanson");
   };
 
 
@@ -260,61 +153,9 @@ useEffect(() => {
           </div>
           
           {loading ? (
-            <div className="flex flex-col justify-center items-center py-16">
-              {/* サイバーパンク風ローディングアニメーション */}
-              <div className="relative w-24 h-24">
-                {/* 回転する外側リング */}
-                <div className={`absolute inset-0 border-4 border-transparent ${
-                  darkMode 
-                    ? 'border-t-cyan-500 border-r-pink-400' 
-                    : 'border-t-purple-600 border-r-blue-500'
-                } rounded-full animate-spin`}></div>
-                
-                {/* パルスする内側サークル */}
-                <div className={`absolute inset-3 ${darkMode ? 'bg-gray-900' : 'bg-gray-100'} rounded-full flex items-center justify-center`}>
-                  <div className={`w-10 h-10 ${
-                    darkMode ? 'bg-cyan-500/20' : 'bg-purple-500/20'
-                  } rounded-full animate-ping`}></div>
-                </div>
-                
-                {/* 文字 */}
-                <div className={`absolute inset-0 flex items-center justify-center text-xs ${
-                  darkMode ? 'text-cyan-400' : 'text-purple-700'
-                } font-bold`}>
-                  LOADING
-                </div>
-              </div>
-              
-              {/* ローディングテキスト */}
-              <div className={`mt-6 ${
-                darkMode ? 'text-cyan-400' : 'text-purple-700'
-              } font-bold tracking-wider flex flex-col items-center`}>
-                <p className="text-sm mb-2">タスク情報を分析中...</p>
-                <div className="flex space-x-1">
-                  <span className={`inline-block w-2 h-2 ${
-                    darkMode ? 'bg-pink-500' : 'bg-blue-500'
-                  } rounded-full animate-pulse`}></span>
-                  <span className={`inline-block w-2 h-2 ${
-                    darkMode ? 'bg-pink-500' : 'bg-blue-500'
-                  } rounded-full animate-pulse`} style={{animationDelay: '0.2s'}}></span>
-                  <span className={`inline-block w-2 h-2 ${
-                    darkMode ? 'bg-pink-500' : 'bg-blue-500'
-                  } rounded-full animate-pulse`} style={{animationDelay: '0.4s'}}></span>
-                </div>
-              </div>
-            </div>
+            <Loading darkMode={darkMode} />
           ) : error ? (
-            <div className={`p-6 rounded-lg ${
-              darkMode 
-                ? 'bg-red-900/30 border border-red-700 text-red-300' 
-                : 'bg-red-50 border border-red-200 text-red-800'
-            }`}>
-              <div className="flex items-center mb-2">
-                <AlertTriangle className="mr-2" size={20} />
-                <h3 className="font-bold">エラーが発生しました</h3>
-              </div>
-              <p>{error}</p>
-            </div>
+            <ErrorLog error={error} darkMode={darkMode} />
           ) : (
             <>
               <div className={`mb-6 p-4 rounded-lg border-l-4 ${

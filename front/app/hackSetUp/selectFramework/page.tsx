@@ -24,6 +24,11 @@ export default function SelectFrameworkPage() {
   const [selectedBackend, setSelectedBackend] = useState<FrameworkProposal | null>(null);
   const [specification, setSpecification] = useState<string>("");
   const [darkMode, setDarkMode] = useState(true);
+  const [isSelected, setIsSelected] = useState(false);
+  
+  const handleClick = () => {
+    setIsSelected(!isSelected);
+  };
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -77,10 +82,25 @@ export default function SelectFrameworkPage() {
                             バックエンド: ${selectedBackend.name}（優先順位: ${selectedBackend.priority}、理由: ${selectedBackend.reason}）
                             `;
       sessionStorage.setItem("framework",frameworkInfo);
-    } else {
-      
-      sessionStorage.setItem("framework", platform);
+    }else if( platform === "Android") {
+      const frameworkInfo = `
+      【フレームワーク選定】
+          フロントエンド: IOS ネイティブ開発
+  
+      Kotlinは主にAndroidアプリ開発の公式言語として使用され、Javaとの互換性を持ちつつ簡潔で安全なコードを書けます。また、サーバーサイド開発やウェブフロントエンド開発にも対応していますが、iOS開発には直接使用できません。`
+
+      sessionStorage.setItem("framework", frameworkInfo);
+
+    }else if( platform === "iOS") {
+    const frameworkInfo = `
+          【フレームワーク選定】
+          フロントエンド: IOS ネイティブ開発
+
+          Swiftはアップル社が開発した、使いやすく安全なプログラミング言語で、iOSやmacOSなどのアプリケーション開発に広く使用されています。直感的な文法と高いパフォーマンスを兼ね備え、初心者から上級開発者まで幅広く支持されています。オープンソースとして提供され、継続的に進化しています。
+          `;
+      sessionStorage.setItem("framework", frameworkInfo);
     }
+
     router.push("/hackSetUp/taskDivision");
   };
 
@@ -324,32 +344,30 @@ export default function SelectFrameworkPage() {
               )
             )
           ) : (
-            <div className={`mt-6 p-5 rounded-lg border border-l-4 ${
+            <div 
+            className={`mt-6 p-5 rounded-lg border border-l-4 ${
+              darkMode 
+                ? `bg-gray-700 bg-opacity-50 border-l-${isSelected ? 'green' : 'gray'}-500 border-gray-600` 
+                : `bg-${platform === "Android" ? 'green' : 'blue'}-50 border-l-${isSelected ? 'green' : 'gray'}-500 border-${platform === "Android" ? 'green' : 'blue'}-100`
+            }`}
+            onClick={handleClick}
+          >
+            <div className={`flex items-center mb-3 ${
               platform === "Android"
-                ? darkMode 
-                  ? 'bg-gray-700 bg-opacity-50 border-l-green-500 border-gray-600' 
-                  : 'bg-green-50 border-l-green-500 border-green-100'
-                : darkMode
-                  ? 'bg-gray-700 bg-opacity-50 border-l-blue-500 border-gray-600'
-                  : 'bg-blue-50 border-l-blue-500 border-blue-100'
+                ? darkMode ? 'text-green-400' : 'text-green-600'
+                : darkMode ? 'text-blue-400' : 'text-blue-600'
             }`}>
-              <div className={`flex items-center mb-3 ${
-                platform === "Android"
-                  ? darkMode ? 'text-green-400' : 'text-green-600'
-                  : darkMode ? 'text-blue-400' : 'text-blue-600'
-              }`}>
-                <Smartphone size={20} className="mr-2" />
-                <h3 className="font-bold">
-                  {platform === "Android" ? "Android ネイティブ開発" : "iOS ネイティブ開発"}
-                </h3>
-              </div>
-              <p className={darkMode ? 'text-gray-300' : 'text-gray-700'}>
-                {platform === "Android"
-                  ? "Android 向けの開発では、Kotlin/Java を使用したネイティブアプリ開発が推奨されます。クロスプラットフォーム開発として Flutter や React Native も検討できますが、パフォーマンスとネイティブ機能へのアクセスを考慮するとネイティブ開発が最適です。"
-                  : "iOS 向けの開発では、Swift/Objective-C を使用したネイティブアプリ開発が推奨されます。クロスプラットフォーム開発として Flutter や React Native も検討できますが、パフォーマンスとネイティブ機能へのアクセスを考慮するとネイティブ開発が最適です。"}
-              </p>
+              <Smartphone size={20} className="mr-2" />
+              <h3 className="font-bold">
+                {platform === "Android" ? "Android ネイティブ開発" : "iOS ネイティブ開発"}
+              </h3>
             </div>
-
+            <p className={darkMode ? 'text-gray-300' : 'text-gray-700'}>
+              {platform === "Android"
+                ? "Android 向けの開発では、Kotlin/Java を使用したネイティブアプリ開発が推奨されます。クロスプラットフォーム開発として Flutter や React Native も検討できますが、パフォーマンスとネイティブ機能へのアクセスを考慮するとネイティブ開発が最適です。"
+                : "IOS開発, Swiftはアップル社が開発した、使いやすく安全なプログラミング言語で、iOSやmacOSなどのアプリケーション開発に広く使用されています。直感的な文法と高いパフォーマンスを兼ね備え、初心者から上級開発者まで幅広く支持されています。オープンソースとして提供され、継続的に進化しています。"}
+            </p>
+          </div>
           )}
           
           <div className="mt-8 flex justify-end">

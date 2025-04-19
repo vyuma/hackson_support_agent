@@ -13,3 +13,5 @@ deepl
 sqlalchemy
 psycopg2-binary
 pydantic
+langchain_anthropic
+json-repair
