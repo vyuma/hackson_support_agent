@@ -100,7 +100,7 @@ const Column: React.FC<ColumnProps> = ({
     <div
       ref={columnRef}
       className={`rounded-lg shadow-lg border ${getColumnStyles()} 
-        transition-all duration-300 backdrop-blur-sm
+        transition-all duration-300 backdrop-blur-sm h-full flex flex-col
         ${isOver ? 'opacity-70 scale-105' : 'opacity-100 scale-100'}`}
     >
       {/* カラムヘッダー */}
@@ -129,7 +129,7 @@ const Column: React.FC<ColumnProps> = ({
             />
           ) : (
             // 未定/完了コラムはタイトルのまま表示
-            <h2 className={`font-bold ${getTitleStyles()}`}>
+            <h2 className={`font-bold ${getTitleStyles()} truncate`}>
               {columnTitle}
             </h2>
           )}
@@ -143,14 +143,16 @@ const Column: React.FC<ColumnProps> = ({
         </div>
       </div>
       
-      {/* タスクリスト */}
-      <div className={`p-4 space-y-3 min-h-[150px] ${
+      {/* タスクリスト - flex-growでスペースを確保 */}
+      <div className={`p-4 space-y-3 overflow-y-auto cyber-scrollbar flex-grow ${
         tasks.length === 0 
           ? isDarkMode
             ? 'border border-dashed border-gray-700 rounded-b-lg bg-gray-800/50 flex items-center justify-center'
             : 'border border-dashed border-gray-300 rounded-b-lg bg-gray-50/50 flex items-center justify-center'
           : ''
-      }`}>
+      }`}
+      style={{ maxHeight: 'calc(100vh - 300px)' }}
+      >
         {tasks.length > 0 ? (
           tasks.map((task, idx) => (
             <DragTaskCard

@@ -153,7 +153,9 @@ if (loading) {
                 <ArrowLeft size={16} className="mr-2" />
                 戻る
                 </button>
-                
+                <h1 className={`text-2xl font-bold tracking-wider ${darkMode ? 'text-cyan-400' : 'text-purple-700'}`}>
+                仕様書<span className={darkMode ? 'text-pink-500' : 'text-blue-600'}>_確認</span>
+                </h1>
                 <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 プロジェクトID: {projectId}
                 </div>
@@ -163,21 +165,10 @@ if (loading) {
 
         {/* MarkdonwViewer */}
         <div className={`max-w-5xl mx-auto relative z-10`}>
-            <div className={`backdrop-blur-lg rounded-xl p-6 shadow-xl border transition-all ${
-            darkMode 
-                ? 'bg-gray-800 bg-opacity-70 border-cyan-500/30 shadow-cyan-500/20' 
-                : 'bg-white bg-opacity-70 border-purple-500/30 shadow-purple-300/20'
-            }`}>
-            <div className="flex items-center mb-6">
-                <h1 className={`text-2xl font-bold tracking-wider ${darkMode ? 'text-cyan-400' : 'text-purple-700'}`}>
-                仕様書<span className={darkMode ? 'text-pink-500' : 'text-blue-600'}>_確認</span>
-                </h1>
-            </div>
             
             <MarkdownViewer markdown={specification} />
             </div>
         </div>
-    </div>
     )
     
 

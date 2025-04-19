@@ -119,13 +119,13 @@ const DragTaskCard: React.FC<DragTaskCardProps> = ({
       <div className="p-3">
         {/* タスク名とプライオリティ */}
         <div className="flex justify-between items-start mb-2">
-          <h3 className={`font-bold text-sm ${
+          <h3 className={`font-bold text-sm truncate mr-2 flex-1 ${
             isDarkMode ? 'text-cyan-300' : 'text-purple-700'
           }`}>
             {task.task_name}
           </h3>
           
-          <div className={`flex items-center text-xs px-2 py-0.5 rounded ${priorityStyle.bgColor} ${priorityStyle.textColor}`}>
+          <div className={`flex items-center text-xs px-2 py-0.5 rounded flex-shrink-0 ${priorityStyle.bgColor} ${priorityStyle.textColor}`}>
             {priorityStyle.icon}
             <span className="ml-1">{task.priority}</span>
           </div>
