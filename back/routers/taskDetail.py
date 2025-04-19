@@ -23,7 +23,7 @@ async def generate_task_details(request: TaskDetailRequest):
 
     try:
         # スレッド数はマシン性能とレート制限に合わせて調整
-        detailed = await run_in_threadpool(service.generate_task_details_parallel, task_dicts, specification, 3, 5)
+        detailed = await run_in_threadpool(service.generate_task_details_parallel, task_dicts, specification, 3, 1)
         return responses.JSONResponse(content={"tasks": detailed})
     except Exception as e:
         # router レベルでも念のためキャッチ
