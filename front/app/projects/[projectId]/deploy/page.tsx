@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter,usePathname} from "next/navigation";
-import { getProjectPeops } from "@/lib/projectGet";
 import MarkdownViewer from "@/components/MarkdownViewer"
 import { AlertTriangle, Sun, Moon, ArrowLeft } from "lucide-react";
 
