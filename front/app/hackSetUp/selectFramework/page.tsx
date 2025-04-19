@@ -83,13 +83,13 @@ export default function SelectFrameworkPage() {
                             `;
       sessionStorage.setItem("framework",frameworkInfo);
     }else if( platform === "Android") {
-      const framework = `
+      const frameworkInfo = `
       【フレームワーク選定】
           フロントエンド: IOS ネイティブ開発
   
       Kotlinは主にAndroidアプリ開発の公式言語として使用され、Javaとの互換性を持ちつつ簡潔で安全なコードを書けます。また、サーバーサイド開発やウェブフロントエンド開発にも対応していますが、iOS開発には直接使用できません。`
 
-      sessionStorage.setItem("framework", platform);
+      sessionStorage.setItem("framework", frameworkInfo);
 
     }else if( platform === "iOS") {
     const frameworkInfo = `

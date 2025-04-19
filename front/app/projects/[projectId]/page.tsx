@@ -18,7 +18,6 @@ const DONE = "done";
 // DndProviderの中で使用するために別コンポーネントとして実装
 function KanbanBoardContent({
   darkMode,
-  project,
   members,
   tasks,
   unassignedTasks,
