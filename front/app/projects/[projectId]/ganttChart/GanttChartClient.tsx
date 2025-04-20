@@ -67,15 +67,41 @@ const GanttChartClient: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-[400px]">
-        <Loading darkMode={darkMode} />
-      </div>
+       <div className={`min-h-screen font-mono transition-all duration-500 flex items-center justify-center ${
+                          darkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-100 text-gray-900'
+                        }`}>
+            {/* Glowing edges */}
+            <div className="fixed bottom-0 left-0 right-0 h-1 z-1000">
+                <div className={`h-full ${darkMode ? 'bg-cyan-500' : 'bg-purple-500'} animate-pulse`}></div>
+            </div>
+            <div className="fixed top-0 bottom-0 right-0 w-1 z-20">
+                <div className={`w-full ${darkMode ? 'bg-pink-500' : 'bg-blue-500'} animate-pulse`}></div>
+            </div>
+            {/* サイバーパンク風ローディングアニメーション */}
+            <Loading darkMode={darkMode} />
+        </div>
     );
   }
   
   if (error) {
     return (
       <div className="flex justify-center items-center h-[400px]">
+        {/* サイバー風装飾要素 */}
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r opacity-80" 
+        style={{ 
+          backgroundImage: darkMode 
+            ? 'linear-gradient(to right, #00ffe1, transparent)' 
+            : 'linear-gradient(to right, #8a2be2, transparent)' 
+        }}
+      ></div>
+      
+      <div className="absolute bottom-0 right-0 w-full h-1 bg-gradient-to-l opacity-80" 
+        style={{ 
+          backgroundImage: darkMode 
+            ? 'linear-gradient(to left, #00ffe1, transparent)' 
+            : 'linear-gradient(to left, #8a2be2, transparent)' 
+        }}
+      ></div>
         <Error error={error} darkMode={darkMode} />
       </div>
     );
@@ -84,6 +110,22 @@ const GanttChartClient: React.FC = () => {
   if (!projectData) {
     return (
       <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md">
+        {/* サイバー風装飾要素 */}
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r opacity-80" 
+        style={{ 
+          backgroundImage: darkMode 
+            ? 'linear-gradient(to right, #00ffe1, transparent)' 
+            : 'linear-gradient(to right, #8a2be2, transparent)' 
+        }}
+      ></div>
+      
+      <div className="absolute bottom-0 right-0 w-full h-1 bg-gradient-to-l opacity-80" 
+        style={{ 
+          backgroundImage: darkMode 
+            ? 'linear-gradient(to left, #00ffe1, transparent)' 
+            : 'linear-gradient(to left, #8a2be2, transparent)' 
+        }}
+      ></div>
         <div className="font-bold">エラー</div>
         <p>プロジェクト情報がありません</p>
       </div>
@@ -205,7 +247,7 @@ const GanttChartClient: React.FC = () => {
   <main className="flex-grow overflow-x-auto cyber-scrollbar">
     {/* GanttChatViewer - サイバー風 */}
     <div className="container mx-auto px-4 py-6 relative z-10">
-      <div className="flex overflow-x-auto cyber-scrollbar pb-6">
+      <div className="flex overflow-x-auto cyber-scrollbar pb-6 flex-col align-center">
         <div className="min-w-max">
           <div className={`max-w-5xl mx-auto relative z-10 p-5 mt-4`}>
             <div className={`rounded-lg p-6 border-2 backdrop-blur-sm ${
@@ -260,14 +302,6 @@ const GanttChartClient: React.FC = () => {
                   </div>
                 </div>
               )}
-              
-              {/* サイバー風の装飾エレメント */}
-              <div className={`absolute -bottom-3 -right-3 w-20 h-20 rounded-tr-3xl ${
-                darkMode ? 'border-t-2 border-r-2 border-cyan-700' : 'border-t-2 border-r-2 border-purple-300'
-              }`}></div>
-              <div className={`absolute -top-3 -left-3 w-16 h-16 rounded-bl-3xl ${
-                darkMode ? 'border-b-2 border-l-2 border-cyan-700' : 'border-b-2 border-l-2 border-purple-300'
-              }`}></div>
             </div>
           </div>
         </div>

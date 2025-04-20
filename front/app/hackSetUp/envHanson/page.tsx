@@ -3,11 +3,25 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import MarkdownViewer from "../../components/MarkdownViewer";
-import { ArrowRight, Terminal, Code, Settings, Layout, Server, Sun, Moon, AlertTriangle } from "lucide-react";
+import { ArrowRight, Terminal, Code, Settings, Layout, Server, Sun, Moon, AlertTriangle, Rewind } from "lucide-react";
 
 import Loading from "@/components/Loading";
+import { taskDetailGetAndpost } from "./detail"
+import { DivideTask, EnvHandsOn, TaskDetail } from "@/types/taskTypes";
 
-import { EnvHandsOn } from "@/types/taskTypes";
+
+export type detailRequestType = {
+  idea: string;
+  duration: string;
+  num_people: number;
+  specification: string;
+  selected_framework: string;
+  directory_info: string;
+  menber_info: string[];
+  envHanson: string;
+};
+
+
 
 export default function EnvHandsOnPage() {
   const router = useRouter();
@@ -112,7 +126,7 @@ export default function EnvHandsOnPage() {
       const members = Array.from({ length: parseInt(numPeople) }, () => "member" + Math.floor(Math.random() * 1000));
   
       // DB に送るリクエストボディを組み立て
-      const requestBody = {
+      const requestBody:detailRequestType = {
         idea: dream,
         duration: duration,
         num_people: parseInt(numPeople, 10),
@@ -122,37 +136,12 @@ export default function EnvHandsOnPage() {
         menber_info: members,
         envHanson: envHanson,
       };
+
   
       // JSON.parse を適用（文字列がエンコードされているため）
-      const taskList = JSON.parse(tasks);
-  
-      console.log("リクエストボディ:", {
-        reqBodyData: requestBody,
-        tasksData: taskList,
-      });
-  
-      // app/api/taskDetail/route.ts を呼び出してタスク詳細を取得とデータベース保存を行う
-      const response = await fetch("/api/taskDetail", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          reqBodyData: requestBody,
-          tasksData: taskList,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("API応答エラー:", response.status, errorText);
-        throw new Error(`APIエラー: ${response.status} ${response.statusText}. 詳細: ${errorText}`);
-      }
-
-      // レスポンスデータを取得
-      const responseData = await response.json();
-      console.log("APIレスポンス:", responseData);
-      
-      // project_idを取得する（レスポンスのプロパティ名を確認）
-      const projectId = responseData.project_id;
+      // JSON.parse を適用（文字列がエンコードされているため）
+      const taskList: DivideTask[] = JSON.parse(tasks);
+      const projectId = await taskDetailGetAndpost(requestBody, taskList);
       if (!projectId) {
         throw new Error("プロジェクトIDが返されませんでした");
       }
@@ -283,8 +272,8 @@ export default function EnvHandsOnPage() {
                           </span>
                           <span className="capitalize">
                             {section === 'overall' ? '全体説明' : 
-                             section === 'devcontainer' ? 'Devcontainer' : 
-                             section === 'frontend' ? 'フロントエンド' : 'バックエンド'}
+                            section === 'devcontainer' ? 'Devcontainer' : 
+                            section === 'frontend' ? 'フロントエンド' : 'バックエンド'}
                           </span>
                         </button>
                       </li>
