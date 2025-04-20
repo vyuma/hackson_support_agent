@@ -1,4 +1,6 @@
 import os
+import time
+import logging
 import tomllib
 from dotenv import load_dotenv
 
@@ -8,7 +10,11 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_anthropic import ChatAnthropic
 from typing import List, Dict
 
+from json_repair import repair_json
+
 load_dotenv("/workspaces/hackson_support_agent/back/.env.local")
+
+logger = logging.getLogger(__name__)
 
 class BaseService:
     def __init__(self,defult_model_provider: str = "google"):
@@ -61,6 +67,25 @@ class BaseService:
                     temperature=temperature,
                     anthropic_api_key=api_key
                 )
+    
+    def _repair_json(self, raw: str) -> str:
+        """
+        生の LLM 応答を json_repair で修復し、修復後の文字列を返す。
+        失敗時にはエラーをログに出して例外を再スロー。
+        """
+        try:
+            repaired = repair_json(raw)
+            logger.debug("JSON repaired successfully: %s", repaired)
+            return repaired
+        except Exception as e:
+            logger.error("json_repair に失敗しました: %s", e, exc_info=True)
+            raise
+
+    def _sleep_rate_limit(self):
+        """
+        必要に応じて呼び出し間隔をあける。
+        """
+        time.sleep(self.rate_limit_sec)
 
 
 

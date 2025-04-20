@@ -3,6 +3,9 @@ from langchain.output_parsers import ResponseSchema, StructuredOutputParser
 from .base_service import BaseService
 from typing import List, Dict
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 class DurationTaskService(BaseService):
     def __init__(self):
@@ -62,11 +65,27 @@ class DurationTaskService(BaseService):
         # tasks_input: タスク情報リストをJSON形式（見やすい整形付き）に変換
         tasks_input = json.dumps(tasks, ensure_ascii=False, indent=2)
         
-        # chain.invoke に渡すパラメータとして duration と tasks_input をセット
-        chain = prompt_template | self.llm_pro | parser
-        result = chain.invoke({"duration": duration, "tasks_input": tasks_input})
-        # result が {"durations": [...]} の形式となることを期待
-        return result.get("durations", [])
+        try:
+            # LLM呼び出し
+            llm_response = prompt_template | self.llm_pro
+            raw = getattr(llm_response, "content", str(llm_response.invoke({
+                "duration": duration, 
+                "tasks_input": tasks_input
+            })))
+            logger.debug("Raw LLM output: %s", raw)
+            
+            # JSON修復→パース
+            repaired = self._repair_json(raw)
+            logger.debug("Repaired JSON: %s", repaired)
+            parsed = parser.parse(repaired)
+            logger.debug("Parsed result: %s", parsed)
+            
+            # result が {"durations": [...]} の形式となることを期待
+            return parsed.get("durations", [])
+        except Exception as e:
+            logger.error("タスク期間生成失敗: %s", e, exc_info=True)
+            # 失敗時はタスクIDのみ持つ基本的なフォールバックを返す
+            return [{"task_id": task["task_id"], "start": 1, "end": 2} for task in tasks]
 
 if __name__ == '__main__':
     # 簡易テスト用サンプル
