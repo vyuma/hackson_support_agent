@@ -1,6 +1,9 @@
 from langchain.prompts import ChatPromptTemplate
 from langchain.output_parsers import ResponseSchema, StructuredOutputParser
 from .base_service import BaseService
+import logging
+
+logger = logging.getLogger(__name__)
 
 class EnvironmentService(BaseService):
     def __init__(self):
@@ -75,10 +78,29 @@ class EnvironmentService(BaseService):
             partial_variables={"format_instructions": parser.get_format_instructions()}
         )
 
-        chain = prompt_template | self.llm_flash | parser
-        result = chain.invoke({
-            "specification": specification,
-            "directory": directory,
-            "framework": framework
-        })
-        return result
+        try:
+            # LLM呼び出し
+            llm_response = prompt_template | self.llm_flash
+            raw = getattr(llm_response, "content", str(llm_response.invoke({
+                "specification": specification,
+                "directory": directory,
+                "framework": framework
+            })))
+            logger.debug("Raw LLM output: %s", raw)
+
+            # JSON修復→パース
+            repaired = self._repair_json(raw)
+            logger.debug("Repaired JSON: %s", repaired)
+            parsed = parser.parse(repaired)
+            logger.debug("Parsed result: %s", parsed)
+
+            return parsed
+        except Exception as e:
+            logger.error("環境構築ハンズオン生成失敗: %s", e, exc_info=True)
+            # 失敗時は基本的な情報を持つフォールバック結果を返す
+            return {
+                "overall": f"環境構築ハンズオン生成に失敗しました: {e}",
+                "devcontainer": "生成失敗",
+                "frontend": "生成失敗", 
+                "backend": "生成失敗"
+            }
