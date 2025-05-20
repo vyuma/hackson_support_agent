@@ -3,11 +3,11 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import MarkdownViewer from "../../components/MarkdownViewer";
-import { ArrowRight, Terminal, Code, Settings, Layout, Server, Sun, Moon, AlertTriangle, Rewind } from "lucide-react";
+import { ArrowRight, Terminal, Code, Settings, Layout, Server, Sun, Moon, AlertTriangle } from "lucide-react";
 
 import Loading from "@/components/Loading";
 import { taskDetailGetAndpost } from "./detail"
-import { DivideTask, EnvHandsOn, TaskDetail } from "@/types/taskTypes";
+import { DivideTask, EnvHandsOn } from "@/types/taskTypes";
 
 
 export type detailRequestType = {
