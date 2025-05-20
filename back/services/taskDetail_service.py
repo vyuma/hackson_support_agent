@@ -26,20 +26,17 @@ class TaskDetailService(BaseService):
         super().__init__()
 
     def generate_task_details_batch(self, specification: str, tasks: List[Dict]) -> List[Dict]:
-        """
-        複数タスクをまとめてLLMに投げ、
-        生の文字列を json_repair で補正してからパースします。
-        """
-        # スキーマとパーサの定義
-        response_schema = ResponseSchema(
-            name="tasks",
-            description="複数タスクに detail を追加した配列",
-            type="array(objects)"
-        )
-        parser = StructuredOutputParser.from_response_schemas([response_schema])
-
-        # プロンプト
-        template = textwrap.dedent("""
+            """
+            複数タスクをまとめてLLMに投げ、失敗時は最大3回まで再試行します。
+            生の文字列を json_repair で補正してからパースし、最終的にフォールバックします。
+            """
+            response_schema = ResponseSchema(
+                name="tasks",
+                description="複数タスクに detail を追加した配列",
+                type="array(objects)"
+            )
+            parser = StructuredOutputParser.from_response_schemas([response_schema])
+            template = textwrap.dedent("""
             あなたはタスク詳細化のエキスパートです。以下のタスクリストについて、各タスクに対して具体的なハンズオンの手順を「detail」として生成してください。
             detailは、タスクの内容をさらに具体化したもので、この形式を必ず守ってください。
             具体的なハンズオンは、詳細な手順やコマンド、コードの記述などを含めてください。
@@ -62,36 +59,39 @@ class TaskDetailService(BaseService):
             入力は以下の形式のタスク情報です:
             {tasks_input}
         """)
-        prompt = ChatPromptTemplate.from_template(
-            template=template,
-            partial_variables={"format_instructions": parser.get_format_instructions()}
-        )
+            prompt = ChatPromptTemplate.from_template(
+                template=template,
+                partial_variables={"format_instructions": parser.get_format_instructions()}
+            )
 
-        try:
-            # LLM呼び出しして生の応答を取得
-            llm_response = (prompt | self.llm_flash).invoke({
-                "tasks_input": tasks,
-                "specification": specification
-                })
-            raw = llm_response.content if hasattr(llm_response, "content") else str(llm_response)
-            logger.debug("Raw LLM output: %s", raw)
+            max_retries = 3
+            for attempt in range(1, max_retries + 1):
+                try:
+                    # LLM呼び出し
+                    llm_response = (prompt | self.llm_flash).invoke({
+                        "tasks_input": tasks,
+                        "specification": specification
+                    })
+                    raw = getattr(llm_response, "content", str(llm_response))
+                    logger.debug("Raw LLM output (試行 %d): %s", attempt, raw)
 
-            # JSON修復
-            repaired = repair_json(raw)
-            logger.debug("Repaired JSON: %s", repaired)
+                    # JSON修復→パース
+                    repaired = self._repair_json(raw)
+                    logger.debug("Repaired JSON (試行 %d): %s", attempt, repaired)
+                    parsed = parser.parse(repaired)
+                    logger.debug("Parsed result (試行 %d): %s", attempt, parsed)
 
-            # 修復した文字列をパーサーにかける
-            parsed = parser.parse(repaired)
-            logger.debug("Parsed result: %s", parsed)
+                    # 正常終了
+                    return parsed["tasks"]
 
-            return parsed["tasks"]
-
-        except Exception as e:
-            logger.error("バッチ呼び出し失敗: %s", e, exc_info=True)
-            # フォールバック
-            return [{**t, "detail": f"バッチ呼び出し失敗: {e}"} for t in tasks]
-        finally:
-            time.sleep(RATE_LIMIT_SEC)
+                except Exception as e:
+                    logger.error("バッチ呼び出し失敗 (試行 %d/%d): %s", attempt, max_retries, e, exc_info=True)
+                    # リトライ間隔
+                    time.sleep(RATE_LIMIT_SEC)
+                    # 最終試行ならフォールバック
+                    if attempt == max_retries:
+                        logger.error("最大試行回数に到達したためフォールバックします。")
+                        return [{**t, "detail": f"バッチ呼び出し失敗(試行{attempt}回): {e}"} for t in tasks]
 
     def generate_task_details_parallel(
         self,
