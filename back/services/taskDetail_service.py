@@ -50,7 +50,18 @@ class TaskDetailService(BaseService):
             3. 改行は文字列内で "\\n" としてエスケープしてください
             4. コードブロックを含める場合は、Markdown記法の ```の代わりに "```" とエスケープしてください
             5. JSON文字列として有効であることを優先し、必要に応じて内容を簡略化してください
-            JSON の例:
+            以下の JSON 形式 **以外** は一切含めず、純粋な JSON オブジェクトだけを返してください。
+            ```json
+            {{'tasks':[{{
+            'task_name': "<タスクの名前、インプットから一切変えてはいけない>",
+            'priority': "<タスクの優先度、インプットから一切変えてはいけない>",
+            'content': "<タスクの簡単な内容、インプットから一切変えてはいけない>",
+            'detail': "<タスクの詳細な手順の Markdown 文字列>"
+            }}
+            ...
+            ]
+            }}
+            '''
             {format_instructions}
             
             仕様書(全体内のタスクの位置を把握するのに参考にしてください):
@@ -68,11 +79,13 @@ class TaskDetailService(BaseService):
             for attempt in range(1, max_retries + 1):
                 try:
                     # LLM呼び出し
-                    llm_response = (prompt | self.llm_flash).invoke({
-                        "tasks_input": tasks,
+                    tasks_json = json.dumps(tasks, ensure_ascii=False)
+                    chain = prompt | self.llm_flash
+                    ai_message = chain.invoke({
+                        "tasks_input": tasks_json,
                         "specification": specification
                     })
-                    raw = getattr(llm_response, "content", str(llm_response))
+                    raw: str = ai_message.content if hasattr(ai_message, "content") else str(ai_message)
                     logger.debug("Raw LLM output (試行 %d): %s", attempt, raw)
 
                     # JSON修復→パース
