@@ -88,20 +88,12 @@ class EnvironmentService(BaseService):
 
         try:
             # LLM呼び出し
-            chain = prompt_template | self.llm_flash
-            ai_message = chain.invoke({
+            chain = prompt_template | self.llm_flash | parser
+            parsed = chain.invoke({
                 "specification": specification,
                 "directory": directory,
                 "framework": framework
             })
-            raw: str = ai_message.content if hasattr(ai_message, "content") else str(ai_message)
-            logger.debug("Raw LLM output: %s", raw)
-
-            # JSON修復→パース
-            repaired = self._repair_json(raw)
-            logger.debug("Repaired JSON: %s", repaired)
-            parsed = parser.parse(repaired)
-            logger.debug("Parsed result: %s", parsed)
 
             return parsed
         except Exception as e:
