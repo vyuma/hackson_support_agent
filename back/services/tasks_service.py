@@ -45,12 +45,14 @@ class TasksService(BaseService):
         )
         try:
             # LLM呼び出し
-            llm_response = prompt_template | self.llm_pro
-            raw = getattr(llm_response, "content", str(llm_response.invoke({
-                "specification": specification, 
-                "directory": directory, 
+            chain = prompt_template | self.llm_pro
+            ai_message = chain.invoke({
+                "specification": specification,
+                "directory": directory,
                 "framework": framework
-            })))
+            })
+            # AIMessage → str 変換
+            raw: str = ai_message.content if hasattr(ai_message, "content") else str(ai_message)
             logger.debug("Raw LLM output: %s", raw)
 
             # JSON修復→パース

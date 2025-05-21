@@ -72,7 +72,15 @@ class EnvironmentService(BaseService):
                         2. devcontainer: iOS開発では.devcontainerは使用しないため、.devcontainerの説明は不要です。使わない旨の説明をしてください。
                         3. frontend: フロントエンドの初期環境構築手順の詳細な説明
                         4. backend: バックエンドの初期環境構築手順の詳細な説明
-                        出力は以下のJSON形式に従ってください:
+                        以下の JSON 形式 **以外** は一切含めず、純粋な JSON オブジェクトだけを返してください。
+                        ```json
+                        {{
+                        "overall": "<全体説明の Markdown 文字列>",
+                        "devcontainer": "<.devcontainer 説明の Markdown 文字列>",
+                        "frontend": "<フロントエンド手順の Markdown 文字列>",
+                        "backend": "<バックエンド手順の Markdown 文字列>"
+                        }}
+                        '''
                         {format_instructions}
                     """,
             partial_variables={"format_instructions": parser.get_format_instructions()}
@@ -80,12 +88,13 @@ class EnvironmentService(BaseService):
 
         try:
             # LLM呼び出し
-            llm_response = prompt_template | self.llm_flash
-            raw = getattr(llm_response, "content", str(llm_response.invoke({
+            chain = prompt_template | self.llm_flash
+            ai_message = chain.invoke({
                 "specification": specification,
                 "directory": directory,
                 "framework": framework
-            })))
+            })
+            raw: str = ai_message.content if hasattr(ai_message, "content") else str(ai_message)
             logger.debug("Raw LLM output: %s", raw)
 
             # JSON修復→パース
