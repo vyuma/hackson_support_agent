@@ -19,8 +19,7 @@ class TasksService(BaseService):
             ResponseSchema(
                 name="tasks",
                 description=(
-                    "タスクの一覧。各タスクは次の情報を含む："
-                    "タスク名、優先度（Must, Should, Could）、具体的な内容。"
+                    "{tasks:[ {task_name: string , priority: 'Must' or 'Should' or 'Could' , content: string } ] }"
                 ),
                 type="array(objects)"
             )
@@ -51,15 +50,7 @@ class TasksService(BaseService):
                 "directory": directory, 
                 "framework": framework
             })))
-            logger.debug("Raw LLM output: %s", raw)
-
-            # JSON修復→パース
-            repaired = self._repair_json(raw)
-            logger.debug("Repaired JSON: %s", repaired)
-            parsed = parser.parse(repaired)
-            logger.debug("Parsed result: %s", parsed)
-            
-            return parsed.get("tasks", [])
+            return raw.get("tasks", [])
         except Exception as e:
             logger.error("タスク生成失敗: %s", e, exc_info=True)
             # 失敗時は基本的なフォールバックタスクを返す
@@ -70,3 +61,5 @@ class TasksService(BaseService):
                     "content": f"タスク生成中にエラーが発生しました: {e}"
                 }
             ]
+            
+
